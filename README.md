@@ -1,4 +1,3 @@
-```markdown
 # cppserver
 
 Build and run:
@@ -8,6 +7,3 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -- -j
 ./build/src/cppserver
 ```
-
-```
-# cppserver
