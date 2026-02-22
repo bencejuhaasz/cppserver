@@ -1,0 +1,19 @@
+# Build folders
+/build/
+/cmake-build-*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
+
+# Binaries
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
