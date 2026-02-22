@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "rebuild (project)",
+            "type": "shell",
+            "command": "${workspaceFolder}/rebuild.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "cmake: build",
+            "type": "shell",
+            "command": "cmake --build ${workspaceFolder}/build -- -j",
+            "problemMatcher": ["$gcc"],
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "label": "cmake: configure",
+            "type": "shell",
+            "command": "cmake -S ${workspaceFolder} -B ${workspaceFolder}/build -DCMAKE_BUILD_TYPE=Debug",
+            "problemMatcher": []
+        }
+    ]
+}
