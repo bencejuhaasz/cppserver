@@ -24,4 +24,5 @@ class Clients {
     bool isBanned(std::string ip_addr, int port);
     void banClient(std::string ip_addr, int port, time_t durationSeconds);
     int searchClient(const std::string &ip_addr, int port) const;
+    void shiftConnections(ClientInfo &client);
 };
