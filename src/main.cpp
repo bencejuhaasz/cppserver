@@ -1,31 +1,25 @@
 #include <iostream>
 #include <csignal>
 #include <thread>
-#include <atomic>
 #include <netinet/in.h>
 #include <cstring>
+#include "worker.h"
+#include "thread_pool.h"
 
 const int PORT = 8080;
 const int MAX_THREADS = 512;
-std::thread threadList[MAX_THREADS];
-std::atomic<bool> slotBusy[MAX_THREADS];
 static int server_fd;
 
 void sighandler(int signal) {
     std::cout << "cppserver: received signal " << signal << std::endl;
+    if (signal == SIGINT) {
+        std::cout << "cppserver: shutting down server..." << std::endl;
+        close(server_fd);
+        exit(0);
+    }
 }
 
-void handle_request(int socket, sockaddr_in address, int thread_index) {
-    std::cout << "Handling request in thread index: " << thread_index << std::endl;
-    // Placeholder for request handling logic
-    // For example, read from the socket, process the request, and send a response
-
-    //reply hello
-    const char* response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 13\r\n\r\nHello, World!";
-    send(socket, response, strlen(response), 0);
-    close(socket);
-    std::cout << "Finished handling request in thread index: " << thread_index << std::endl;
-}
+// Request handling is delegated to Worker::handleRequest
 
 int main() {
     std::cout << "cppserver: starting server..." << std::endl;
@@ -59,9 +53,8 @@ int main() {
 
     std::cout << "Listening on port: " << PORT << "...\n";
 
-    for (int i = 0; i < MAX_THREADS; ++i) {
-        slotBusy[i].store(false);
-    }
+    ThreadPool pool(MAX_THREADS);
+    pool.start();
 
 
     while (true)
@@ -71,25 +64,8 @@ int main() {
             perror("accept");
             continue;
         }
-        bool assigned = false;
-        for (int i = 0; i < MAX_THREADS; i++) {
-            if (!slotBusy[i].load()) {
-                slotBusy[i].store(true);
-                // create a detached wrapper that clears the busy flag when done
-                threadList[i] = std::thread([new_socket, address, i]() mutable {
-                    handle_request(new_socket, address, i);
-                    slotBusy[i].store(false);
-                });
-                threadList[i].detach();
-                assigned = true;
-                std::cout << "Offloading to index [" << i << "] in the thread pool\n";
-                break;
-            }
-        }
-        if (!assigned) {
-            close(new_socket);
-            std::cout << "Thread pool is full, cannot handle new request\n";
-        }
+        // enqueue the accepted socket for the thread pool to process
+        pool.enqueue(new_socket, address);
     }
     
     return 0;
