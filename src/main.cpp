@@ -1,12 +1,14 @@
 #include <iostream>
 #include <csignal>
 #include <thread>
+#include <atomic>
 #include <netinet/in.h>
 #include <cstring>
 
 const int PORT = 8080;
 const int MAX_THREADS = 512;
 std::thread threadList[MAX_THREADS];
+std::atomic<bool> slotBusy[MAX_THREADS];
 static int server_fd;
 
 void sighandler(int signal) {
@@ -57,6 +59,10 @@ int main() {
 
     std::cout << "Listening on port: " << PORT << "...\n";
 
+    for (int i = 0; i < MAX_THREADS; ++i) {
+        slotBusy[i].store(false);
+    }
+
 
     while (true)
     {
@@ -67,10 +73,16 @@ int main() {
         }
         bool assigned = false;
         for (int i = 0; i < MAX_THREADS; i++) {
-            if (!threadList[i].joinable()) {
-                threadList[i] = std::thread(handle_request, new_socket, address, i);
+            if (!slotBusy[i].load()) {
+                slotBusy[i].store(true);
+                // create a detached wrapper that clears the busy flag when done
+                threadList[i] = std::thread([new_socket, address, i]() mutable {
+                    handle_request(new_socket, address, i);
+                    slotBusy[i].store(false);
+                });
+                threadList[i].detach();
                 assigned = true;
-                std::cout << "Offloading to index [" << i << "] in the thread pool\n"; 
+                std::cout << "Offloading to index [" << i << "] in the thread pool\n";
                 break;
             }
         }
