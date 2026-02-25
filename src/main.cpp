@@ -19,12 +19,10 @@ void sighandler(int signal) {
     }
 }
 
-// Request handling is delegated to Worker::handleRequest
 
 int main() {
     std::cout << "cppserver: starting server..." << std::endl;
     std::signal(SIGINT, sighandler);
-    //std::thread input_thread(input_thread_func); #start new thread for handling user input
     int new_socket;
     sockaddr_in address{};
     int addrlen = sizeof(address);
@@ -64,7 +62,6 @@ int main() {
             perror("accept");
             continue;
         }
-        // enqueue the accepted socket for the thread pool to process
         pool.enqueue(new_socket, address);
     }
     
