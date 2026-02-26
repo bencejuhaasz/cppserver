@@ -5,6 +5,7 @@
 #include <cstring>
 #include "worker.h"
 #include "thread_pool.h"
+#include <curl/curl.h>
 
 const int PORT = 8080;
 const int MAX_THREADS = 512;
@@ -23,6 +24,11 @@ void sighandler(int signal) {
 int main() {
     std::cout << "cppserver: starting server..." << std::endl;
     std::signal(SIGINT, sighandler);
+    if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
+        std::cerr << "cppserver: curl_global_init failed" << std::endl;
+        return 1;
+    }
+    atexit(curl_global_cleanup);
     int new_socket;
     sockaddr_in address{};
     int addrlen = sizeof(address);
