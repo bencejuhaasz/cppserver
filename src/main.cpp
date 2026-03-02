@@ -7,7 +7,7 @@
 #include "thread_pool.h"
 #include <curl/curl.h>
 
-const int PORT = 8080;
+const int PORT = 1234;
 const int MAX_THREADS = 512;
 static int server_fd;
 
