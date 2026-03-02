@@ -38,11 +38,11 @@ if ! curl -sS --connect-timeout 1 http://127.0.0.1:8080/ >/dev/null 2>&1; then
   exit 1
 fi
 
-CONCURRENCY=100
+CONCURRENCY=400
 echo "Running $CONCURRENCY parallel requests against http://127.0.0.1:8080/"
 rm -f "$RESULTS_FILE"
-seq 1 $CONCURRENCY | xargs -n1 -P$CONCURRENCY -I{} sh -c \
-  'out=$(curl -sS -o /dev/null -w "code:%{http_code} time:%{time_total}" http://127.0.0.1:8080/ 2>&1); ec=$?; if [ "$ec" -ne 0 ]; then printf "id:%s error:exit=%d msg:%s\n" "{}" "$ec" "$(echo "$out" | tr "\n" " ")"; else printf "id:%s %s\n" "{}" "$out"; fi' \
+seq 1 $CONCURRENCY | xargs -n1 -P$CONCURRENCY -I{} bash -c \
+  'out=$(curl -sS -o /dev/null -w "code:%{http_code} time:%{time_total}" http://127.0.0.1:8080/ 2>/dev/null); ec=$?; if [ "$ec" -ne 0 ]; then printf "id:%s error:exit=%d\n" "{}" "$ec"; else printf "id:%s %s\n" "{}" "$out"; fi' \
   >> "$RESULTS_FILE"
 
 echo "Results (first 20 lines):"
