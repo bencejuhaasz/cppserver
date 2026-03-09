@@ -1,4 +1,4 @@
-add_executable(cppserver main.cpp worker.cpp cpu_worker.cpp thread_pool.cpp)
+add_executable(cppserver main.cpp worker.cpp cpu_worker.cpp io_worker.cpp thread_pool.cpp)
 
 target_compile_features(cppserver PRIVATE cxx_std_20)
 target_include_directories(cppserver PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

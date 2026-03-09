@@ -6,6 +6,7 @@
 #include <curl/curl.h>
 #include "worker.h"
 #include "cpu_worker.h"
+#include "io_worker.h"
 #include "thread_pool.h"
 
 const int PORT = 1234;
@@ -13,6 +14,7 @@ const int MAX_THREADS = 4;
 static boost::asio::io_context* io_context_ptr = nullptr;
 
 enum class WorkerType {
+    DEFAULT_WORKER,
     IO_WORKER,
     CPU_WORKER
 };
@@ -30,17 +32,21 @@ void sighandler(int signal) {
 
 
 void printUsage(const char* program) {
-    std::cout << "Usage: " << program << " [--cpu]\n";
-    std::cout << "  --cpu    Use CPU-intensive worker (default: I/O worker)\n";
+    std::cout << "Usage: " << program << " [--cpu | --io-heavy]\n";
+    std::cout << "  --cpu       Use CPU-intensive worker\n";
+    std::cout << "  --io-heavy  Use IO-intensive test worker\n";
+    std::cout << "  default     Use existing network worker\n";
 }
 
 int main(int argc, char* argv[]) {
     // Parse command-line arguments
-    WorkerType worker_type = WorkerType::IO_WORKER;
+    WorkerType worker_type = WorkerType::DEFAULT_WORKER;
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--cpu") {
             worker_type = WorkerType::CPU_WORKER;
+        } else if (arg == "--io-heavy") {
+            worker_type = WorkerType::IO_WORKER;
         } else if (arg == "--help" || arg == "-h") {
             printUsage(argv[0]);
             return 0;
@@ -51,7 +57,12 @@ int main(int argc, char* argv[]) {
         }
     }
     
-    const char* worker_type_name = (worker_type == WorkerType::CPU_WORKER) ? "CPU" : "I/O";
+    const char* worker_type_name = "default";
+    if (worker_type == WorkerType::CPU_WORKER) {
+        worker_type_name = "cpu";
+    } else if (worker_type == WorkerType::IO_WORKER) {
+        worker_type_name = "io-heavy";
+    }
     std::cout << "cppserver: starting server with " << worker_type_name << " worker..." << std::endl;
     std::signal(SIGINT, sighandler);
     if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
@@ -78,6 +89,8 @@ int main(int argc, char* argv[]) {
         ThreadPool pool(MAX_THREADS, [worker_type](int id) -> std::unique_ptr<WorkerBase> {
             if (worker_type == WorkerType::CPU_WORKER) {
                 return std::make_unique<CpuWorker>(id);
+            } else if (worker_type == WorkerType::IO_WORKER) {
+                return std::make_unique<IoWorker>(id);
             } else {
                 return std::make_unique<Worker>(id);
             }
