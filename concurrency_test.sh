@@ -16,7 +16,7 @@ if [ ! -x "$SERVER_BIN" ]; then
 fi
 
 echo "Starting server: $SERVER_BIN"
-"$SERVER_BIN" > "$LOG_FILE" 2>&1 &
+"$SERVER_BIN" --cpu > "$LOG_FILE" 2>&1 &
 PID=$!
 echo "Server PID: $PID (logging to $LOG_FILE)"
 

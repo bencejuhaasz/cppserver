@@ -7,11 +7,14 @@
 #include <mutex>
 #include <condition_variable>
 #include <memory>
-#include "worker.h"
+#include <functional>
+#include "worker_base.h"
 
 class ThreadPool {
 public:
-    explicit ThreadPool(size_t numThreads);
+    using WorkerFactory = std::function<std::unique_ptr<WorkerBase>(int)>;
+    
+    explicit ThreadPool(size_t numThreads, WorkerFactory factory);
     ~ThreadPool();
 
     void start();
@@ -29,4 +32,5 @@ private:
     std::condition_variable cv;
     bool stopping;
     size_t numThreads;
+    WorkerFactory workerFactory;
 };

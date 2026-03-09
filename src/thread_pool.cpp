@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <thread>
 
-ThreadPool::ThreadPool(size_t numThreads)
-    : stopping(false), numThreads(numThreads) {}
+ThreadPool::ThreadPool(size_t numThreads, WorkerFactory factory)
+    : stopping(false), numThreads(numThreads), workerFactory(std::move(factory)) {}
 
 ThreadPool::~ThreadPool() {
     stop();
@@ -53,7 +53,7 @@ void ThreadPool::enqueue(std::unique_ptr<boost::asio::ip::tcp::socket> socket) {
 }
 
 void ThreadPool::workerLoop(int id) {
-    Worker w(id);
+    auto worker = workerFactory(id);
     for (;;) {
         Task task;
         {
@@ -63,6 +63,6 @@ void ThreadPool::workerLoop(int id) {
             task = std::move(tasks.front());
             tasks.pop();
         }
-        w.handleRequest(std::move(task.socket), id);
+        worker->handleRequest(std::move(task.socket), id);
     }
 }

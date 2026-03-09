@@ -12,11 +12,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return total;
 }
 
-Worker::Worker(int id) : id(id) {}
-
-int Worker::getId() const {
-    return id;
-}
+Worker::Worker(int id) : WorkerBase(id) {}
 
 void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) {
     std::cout << "Handling request in worker id: " << id << " thread index: " << thread_index << std::endl;

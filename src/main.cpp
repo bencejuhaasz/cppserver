@@ -5,11 +5,17 @@
 #include <boost/asio.hpp>
 #include <curl/curl.h>
 #include "worker.h"
+#include "cpu_worker.h"
 #include "thread_pool.h"
 
 const int PORT = 1234;
 const int MAX_THREADS = 4;
 static boost::asio::io_context* io_context_ptr = nullptr;
+
+enum class WorkerType {
+    IO_WORKER,
+    CPU_WORKER
+};
 
 void sighandler(int signal) {
     std::cout << "cppserver: received signal " << signal << std::endl;
@@ -23,8 +29,30 @@ void sighandler(int signal) {
 }
 
 
-int main() {
-    std::cout << "cppserver: starting server..." << std::endl;
+void printUsage(const char* program) {
+    std::cout << "Usage: " << program << " [--cpu]\n";
+    std::cout << "  --cpu    Use CPU-intensive worker (default: I/O worker)\n";
+}
+
+int main(int argc, char* argv[]) {
+    // Parse command-line arguments
+    WorkerType worker_type = WorkerType::IO_WORKER;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--cpu") {
+            worker_type = WorkerType::CPU_WORKER;
+        } else if (arg == "--help" || arg == "-h") {
+            printUsage(argv[0]);
+            return 0;
+        } else {
+            std::cerr << "Unknown option: " << arg << std::endl;
+            printUsage(argv[0]);
+            return 1;
+        }
+    }
+    
+    const char* worker_type_name = (worker_type == WorkerType::CPU_WORKER) ? "CPU" : "I/O";
+    std::cout << "cppserver: starting server with " << worker_type_name << " worker..." << std::endl;
     std::signal(SIGINT, sighandler);
     if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
         std::cerr << "cppserver: curl_global_init failed" << std::endl;
@@ -45,8 +73,15 @@ int main() {
         acceptor.set_option(boost::asio::socket_base::reuse_address(true));
         
         std::cout << "Listening on port: " << PORT << "...\n";
-
-        ThreadPool pool(MAX_THREADS);
+        
+        // Create thread pool with appropriate worker factory
+        ThreadPool pool(MAX_THREADS, [worker_type](int id) -> std::unique_ptr<WorkerBase> {
+            if (worker_type == WorkerType::CPU_WORKER) {
+                return std::make_unique<CpuWorker>(id);
+            } else {
+                return std::make_unique<Worker>(id);
+            }
+        });
         pool.start();
 
         while (true) {
