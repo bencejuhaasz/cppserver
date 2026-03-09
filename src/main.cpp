@@ -8,7 +8,7 @@
 #include "thread_pool.h"
 
 const int PORT = 1234;
-const int MAX_THREADS = 512;
+const int MAX_THREADS = 4;
 static boost::asio::io_context* io_context_ptr = nullptr;
 
 void sighandler(int signal) {
