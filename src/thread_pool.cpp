@@ -44,10 +44,10 @@ void ThreadPool::stop() {
     workers.clear();
 }
 
-void ThreadPool::enqueue(int socket, sockaddr_in address) {
+void ThreadPool::enqueue(std::unique_ptr<boost::asio::ip::tcp::socket> socket) {
     {
         std::unique_lock<std::mutex> lock(mtx);
-        tasks.push(Task{socket, address});
+        tasks.push(Task{std::move(socket)});
     }
     cv.notify_one();
 }
@@ -60,9 +60,9 @@ void ThreadPool::workerLoop(int id) {
             std::unique_lock<std::mutex> lock(mtx);
             cv.wait(lock, [this]() { return stopping || !tasks.empty(); });
             if (stopping && tasks.empty()) break;
-            task = tasks.front();
+            task = std::move(tasks.front());
             tasks.pop();
         }
-        w.handleRequest(task.socket, task.address, id);
+        w.handleRequest(std::move(task.socket), id);
     }
 }

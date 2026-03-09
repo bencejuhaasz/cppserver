@@ -1,8 +1,9 @@
 #include "worker.h"
 #include <iostream>
 #include <cstring>
-#include <unistd.h>
 #include <curl/curl.h>
+#include <boost/asio/write.hpp>
+#include <boost/system/error_code.hpp>
 
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t total = size * nmemb;
@@ -17,7 +18,7 @@ int Worker::getId() const {
     return id;
 }
 
-void Worker::handleRequest(int socket, sockaddr_in address, int thread_index) {
+void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) {
     std::cout << "Handling request in worker id: " << id << " thread index: " << thread_index << std::endl;
 
     // Build the API URL per client (example fixed timezone as requested)
@@ -46,12 +47,17 @@ void Worker::handleRequest(int socket, sockaddr_in address, int thread_index) {
     header += "\r\n\r\n";
     std::string response = header + response_body;
 
-    // Send the response and close the socket. Each worker thread handles its own socket only.
-    ssize_t sent = send(socket, response.c_str(), response.size(), 0);
-    if (sent < 0) {
-        std::cerr << "Worker " << id << " failed to send response" << std::endl;
+    // Send the response using Boost.Asio and close the socket
+    boost::system::error_code ec;
+    boost::asio::write(*socket, boost::asio::buffer(response), ec);
+    if (ec) {
+        std::cerr << "Worker " << id << " failed to send response: " << ec.message() << std::endl;
     }
-    close(socket);
+    
+    socket->close(ec);
+    if (ec) {
+        std::cerr << "Worker " << id << " error closing socket: " << ec.message() << std::endl;
+    }
 
     std::cout << "Finished handling request in worker id: " << id << " thread index: " << thread_index << std::endl;
 }

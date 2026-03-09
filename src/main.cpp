@@ -1,21 +1,23 @@
 #include <iostream>
 #include <csignal>
 #include <thread>
-#include <netinet/in.h>
 #include <cstring>
+#include <boost/asio.hpp>
+#include <curl/curl.h>
 #include "worker.h"
 #include "thread_pool.h"
-#include <curl/curl.h>
 
 const int PORT = 1234;
 const int MAX_THREADS = 512;
-static int server_fd;
+static boost::asio::io_context* io_context_ptr = nullptr;
 
 void sighandler(int signal) {
     std::cout << "cppserver: received signal " << signal << std::endl;
     if (signal == SIGINT) {
         std::cout << "cppserver: shutting down server..." << std::endl;
-        close(server_fd);
+        if (io_context_ptr) {
+            io_context_ptr->stop();
+        }
         exit(0);
     }
 }
@@ -29,46 +31,39 @@ int main() {
         return 1;
     }
     atexit(curl_global_cleanup);
-    int new_socket;
-    sockaddr_in address{};
-    int addrlen = sizeof(address);
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == 0) {
-        perror("socket failed");
-        return 1;
-    }
-    int opt = 1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-        perror("setsockopt");
-        return 1;
-    }
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    
+    try {
+        boost::asio::io_context io_context;
+        io_context_ptr = &io_context;
+        
+        boost::asio::ip::tcp::acceptor acceptor(
+            io_context,
+            boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT)
+        );
+        
+        // Set SO_REUSEADDR option
+        acceptor.set_option(boost::asio::socket_base::reuse_address(true));
+        
+        std::cout << "Listening on port: " << PORT << "...\n";
 
-    if (bind(server_fd, (sockaddr*)&address, sizeof(address)) < 0) {
-        perror("bind failed");
-        return 1;
-    }
+        ThreadPool pool(MAX_THREADS);
+        pool.start();
 
-    if (listen(server_fd, 3) < 0) {
-        return 1;
-    }
-
-    std::cout << "Listening on port: " << PORT << "...\n";
-
-    ThreadPool pool(MAX_THREADS);
-    pool.start();
-
-
-    while (true)
-    {
-        new_socket = accept(server_fd, (sockaddr*)&address, (socklen_t*)&addrlen);
-        if (new_socket < 0) {
-            perror("accept");
-            continue;
+        while (true) {
+            auto socket = std::make_unique<boost::asio::ip::tcp::socket>(io_context);
+            boost::system::error_code ec;
+            acceptor.accept(*socket, ec);
+            
+            if (ec) {
+                std::cerr << "accept error: " << ec.message() << std::endl;
+                continue;
+            }
+            
+            pool.enqueue(std::move(socket));
         }
-        pool.enqueue(new_socket, address);
+    } catch (std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        return 1;
     }
     
     return 0;

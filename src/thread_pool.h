@@ -1,11 +1,12 @@
 #pragma once
 
-#include <netinet/in.h>
+#include <boost/asio/ip/tcp.hpp>
 #include <thread>
 #include <vector>
 #include <queue>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 #include "worker.h"
 
 class ThreadPool {
@@ -15,10 +16,10 @@ public:
 
     void start();
     void stop();
-    void enqueue(int socket, sockaddr_in address);
+    void enqueue(std::unique_ptr<boost::asio::ip::tcp::socket> socket);
 
 private:
-    struct Task { int socket; sockaddr_in address; };
+    struct Task { std::unique_ptr<boost::asio::ip::tcp::socket> socket; };
 
     void workerLoop(int id);
 
