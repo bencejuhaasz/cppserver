@@ -5,7 +5,7 @@
 ### Ubuntu/Debian
 ```sh
 sudo apt-get update
-sudo apt-get install -y build-essential cmake libcurl4-openssl-dev libboost-all-dev
+sudo apt-get install -y build-essential cmake libcurl4-openssl-dev libboost-all-dev wrk
 ```
 
 ## Build and run
