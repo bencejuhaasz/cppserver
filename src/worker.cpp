@@ -17,6 +17,12 @@ Worker::Worker(int id) : WorkerBase(id) {}
 void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) {
     std::cout << "Handling request in worker id: " << id << " thread index: " << thread_index << std::endl;
 
+    if (!readRequestHeader(*socket)) {
+        boost::system::error_code close_ec;
+        socket->close(close_ec);
+        return;
+    }
+
     // Build the API URL per client (example fixed timezone as requested)
     const char* api_url = "https://time.now/developer/api/timezone/Europe/London";
 
@@ -38,7 +44,7 @@ void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket,
 
     // Prepare HTTP response for the client. Keep responses separate per-thread.
     std::string response_body = api_response.empty() ? std::string("{\"error\":\"upstream failed\"}") : api_response;
-    std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ";
+    std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: ";
     header += std::to_string(response_body.size());
     header += "\r\n\r\n";
     std::string response = header + response_body;

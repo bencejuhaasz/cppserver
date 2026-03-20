@@ -14,6 +14,12 @@ CpuWorker::CpuWorker(int id) : WorkerBase(id) {}
 void CpuWorker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) {
 	std::cout << "Handling CPU-intensive request in worker id: " << id << " thread index: " << thread_index << std::endl;
 
+	if (!readRequestHeader(*socket)) {
+		boost::system::error_code close_ec;
+		socket->close(close_ec);
+		return;
+	}
+
 	auto start = std::chrono::high_resolution_clock::now();
 
 	// Perform CPU-intensive computations
@@ -39,7 +45,7 @@ void CpuWorker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> sock
 	json << "}";
 
 	std::string response_body = json.str();
-	std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ";
+	std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: ";
 	header += std::to_string(response_body.size());
 	header += "\r\n\r\n";
 	std::string response = header + response_body;

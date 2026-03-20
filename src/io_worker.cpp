@@ -18,13 +18,19 @@ void IoWorker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socke
     std::cout << "Handling IO-intensive request in worker id: " << id
               << " thread index: " << thread_index << std::endl;
 
+    if (!readRequestHeader(*socket)) {
+        boost::system::error_code close_ec;
+        socket->close(close_ec);
+        return;
+    }
+
     auto start = std::chrono::steady_clock::now();
     IoStats stats = runDiskIoWorkload(thread_index, 200, 4096);
     auto end = std::chrono::steady_clock::now();
     long long elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
     std::string body = buildPayload(id, thread_index, stats, elapsed_ms);
-    std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: ";
+    std::string header = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: ";
     header += std::to_string(body.size());
     header += "\r\n\r\n";
     std::string response = header + body;
