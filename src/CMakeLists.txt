@@ -5,7 +5,9 @@ target_include_directories(cppserver PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(CURL REQUIRED)
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
-target_link_libraries(cppserver PRIVATE CURL::libcurl Threads::Threads Boost::system)
 
+set(Boost_NO_BOOST_CMAKE ON)
+find_package(Boost REQUIRED)
+target_include_directories(cppserver PRIVATE ${Boost_INCLUDE_DIRS})
+target_link_libraries(cppserver PRIVATE CURL::libcurl Threads::Threads)
 install(TARGETS cppserver RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
