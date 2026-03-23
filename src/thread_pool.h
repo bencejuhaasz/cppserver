@@ -14,7 +14,7 @@ class ThreadPool {
 public:
     using WorkerFactory = std::function<std::unique_ptr<WorkerBase>(int)>;
     
-    explicit ThreadPool(size_t numThreads, WorkerFactory factory);
+    explicit ThreadPool(size_t numThreads, WorkerFactory factory, size_t maxQueue = 1024);
     ~ThreadPool();
 
     void start();
@@ -33,4 +33,5 @@ private:
     bool stopping;
     size_t numThreads;
     WorkerFactory workerFactory;
+    size_t maxQueue;
 };

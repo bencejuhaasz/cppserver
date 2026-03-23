@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <thread>
 
-ThreadPool::ThreadPool(size_t numThreads, WorkerFactory factory)
-    : stopping(false), numThreads(numThreads), workerFactory(std::move(factory)) {}
+ThreadPool::ThreadPool(size_t numThreads, WorkerFactory factory, size_t maxQueue)
+    : stopping(false), numThreads(numThreads), workerFactory(std::move(factory)), maxQueue(maxQueue) {}
 
 ThreadPool::~ThreadPool() {
     stop();
@@ -47,6 +47,16 @@ void ThreadPool::stop() {
 void ThreadPool::enqueue(std::unique_ptr<boost::asio::ip::tcp::socket> socket) {
     {
         std::unique_lock<std::mutex> lock(mtx);
+        if (tasks.size() >= maxQueue) {
+            // Drop the connection to avoid unbounded memory growth.
+            boost::system::error_code ec;
+            try {
+                socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+            } catch (...) {}
+            socket->close(ec);
+            std::cerr << "ThreadPool: queue full (" << maxQueue << "), dropped connection\n";
+            return;
+        }
         tasks.push(Task{std::move(socket)});
     }
     cv.notify_one();

@@ -11,6 +11,7 @@
 
 const int PORT = 1234;
 const int MAX_THREADS = 4;
+const size_t MAX_QUEUE = 1024; // maximum queued connections per-thread-pool
 static boost::asio::io_context* io_context_ptr = nullptr;
 
 enum class WorkerType {
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
             } else {
                 return std::make_unique<Worker>(id);
             }
-        });
+        }, MAX_QUEUE);
         pool.start();
 
         while (true) {
