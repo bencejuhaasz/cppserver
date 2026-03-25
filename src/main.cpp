@@ -11,7 +11,7 @@
 
 const int PORT = 1234;
 const int MAX_THREADS = 4;
-const size_t MAX_QUEUE = 1024; // maximum queued connections per-thread-pool
+const size_t DEFAULT_MAX_QUEUE = 1024; // default maximum queued connections per-thread-pool
 static boost::asio::io_context* io_context_ptr = nullptr;
 
 enum class WorkerType {
@@ -33,25 +33,52 @@ void sighandler(int signal) {
 
 
 void printUsage(const char* program) {
-    std::cout << "Usage: " << program << " [--cpu | --io-heavy]\n";
+    std::cout << "Usage: " << program << " [--cpu | --io-heavy] [--max-queue N]\n";
     std::cout << "  --cpu       Use CPU-intensive worker\n";
     std::cout << "  --io-heavy  Use IO-intensive test worker\n";
+    std::cout << "  --max-queue N  Set maximum queued connections per thread pool (default 1024)\n";
     std::cout << "  default     Use existing network worker\n";
 }
 
 int main(int argc, char* argv[]) {
     // Parse command-line arguments
     WorkerType worker_type = WorkerType::DEFAULT_WORKER;
+    size_t max_queue = DEFAULT_MAX_QUEUE;
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
         if (arg == "--cpu") {
             worker_type = WorkerType::CPU_WORKER;
+        } else if (arg == "--max-queue") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --max-queue requires a numeric argument\n";
+                printUsage(argv[0]);
+                return 1;
+            }
+            std::string val = argv[++i];
+            try {
+                max_queue = std::stoul(val);
+            } catch (const std::exception& e) {
+                std::cerr << "Error: invalid number for --max-queue: " << val << "\n";
+                return 1;
+            }
         } else if (arg == "--io-heavy") {
             worker_type = WorkerType::IO_WORKER;
         } else if (arg == "--help" || arg == "-h") {
             printUsage(argv[0]);
             return 0;
         } else {
+            // support --max-queue=NN form
+            const std::string prefix = "--max-queue=";
+            if (arg.rfind(prefix, 0) == 0) {
+                std::string val = arg.substr(prefix.size());
+                try {
+                    max_queue = std::stoul(val);
+                    continue;
+                } catch (const std::exception& e) {
+                    std::cerr << "Error: invalid number for --max-queue: " << val << "\n";
+                    return 1;
+                }
+            }
             std::cerr << "Unknown option: " << arg << std::endl;
             printUsage(argv[0]);
             return 1;
@@ -95,7 +122,7 @@ int main(int argc, char* argv[]) {
             } else {
                 return std::make_unique<Worker>(id);
             }
-        }, MAX_QUEUE);
+        }, max_queue);
         pool.start();
 
         while (true) {
