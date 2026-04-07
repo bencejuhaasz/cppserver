@@ -25,7 +25,7 @@ void ThreadPool::start() {
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         CPU_SET(static_cast<int>(i % ncores), &cpuset);
-        int rc = pthread_setaffinity_np(workers.back().native_handle(), sizeof(cpu_set_t), &cpuset);
+        int rc = sched_setaffinity(workers.back().native_handle(), sizeof(cpu_set_t), &cpuset);
         if (rc != 0) {
             std::cerr << "ThreadPool: failed to set affinity for thread " << i << " rc=" << rc << std::endl;
         }
