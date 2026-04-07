@@ -6,9 +6,9 @@ from datetime import datetime
 
 # Measurement config
 t = 10  # seconds
-cons = [300, 350, 400, 450, 500]
+cons = [300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500]
 threads = [4]
-queues = [256, 1024, 2048]
+queues = [1024, 2048]
 
 ADDR = "http://127.0.0.1:1234"
 

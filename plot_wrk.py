@@ -15,6 +15,7 @@ data = defaultdict(list)
 
 current_queue = None
 current_conn = None
+current_requests = None
 
 with open(log_path, "r") as f:
     for line in f:
@@ -25,29 +26,47 @@ with open(log_path, "r") as f:
         if m:
             current_queue = int(m.group(1))
             current_conn = int(m.group(2))
+            current_requests = None
+
+        # total requests parsing
+        rm = re.search(r"(\d+) requests in", line)
+        if rm:
+            current_requests = int(rm.group(1))
 
         # socket errors parsing
-        if "Socket errors:" in line:
-            tm = re.search(r"timeout (\d+)", line)
-            if tm and current_queue is not None:
-                timeout = int(tm.group(1))
-                data[current_queue].append((current_conn, timeout))
+        em = re.search(
+            r"Socket errors:\s*connect (\d+), read (\d+), write (\d+), timeout (\d+)",
+            line
+        )
 
-# plotolás
+        if em and current_queue is not None:
+            connect, read, write, timeout = map(int, em.groups())
+            total_errors = connect + read + write + timeout
+
+            # safety (ha valamiért nincs request adat)
+            if current_requests is None or current_requests == 0:
+                failure_rate = 0
+            else:
+                failure_rate = (total_errors / current_requests) * 100
+
+            data[current_queue].append((current_conn, failure_rate))
+
+# ------------------------
+# 📈 PLOTTOLÁS (queue size-onként külön)
+# ------------------------
 for queue, values in data.items():
-    values.sort()
+    values.sort(key=lambda x: x[0])
 
     cons = [v[0] for v in values]
-    timeouts = [v[1] for v in values]
+    failure_rates = [v[1] for v in values]
 
     plt.figure()
-    plt.plot(cons, timeouts)
+    plt.plot(cons, failure_rates)
     plt.xlabel("Connections")
-    plt.ylabel("Failed requests (timeouts)")
+    plt.ylabel("Failed requests (%)")
     plt.title(f"Queue size = {queue}")
     plt.grid()
 
-    # fájlba mentés (nagyon hasznos később)
-    plt.savefig(f"plot_queue_{queue}.png")
+    plt.savefig(f"plot_queue_{queue}_failure_rate.png")
 
 plt.show()
