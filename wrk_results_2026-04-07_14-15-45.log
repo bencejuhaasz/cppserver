@@ -1,0 +1,852 @@
+=== WRK MEASUREMENT LOG ===
+
+
+
+###############################
+### max-queue = 1024
+###############################
+
+
+=== max-queue=1024, threads=4, connections=300 ===
+COMMAND: wrk -c300 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.20s   254.54ms   1.51s    85.94%
+    Req/Sec    57.79      8.42    80.00     75.00%
+  2312 requests in 10.04s, 663.80KB read
+Requests/sec:    230.21
+Transfer/sec:     66.10KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=310 ===
+COMMAND: wrk -c310 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 310 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.56s    69.22ms   1.99s    93.39%
+    Req/Sec    49.47     12.99   101.00     85.55%
+  1722 requests in 10.05s, 494.40KB read
+  Socket errors: connect 0, read 0, write 0, timeout 178
+Requests/sec:    171.26
+Transfer/sec:     49.17KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=320 ===
+COMMAND: wrk -c320 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 320 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.55s   101.62ms   1.99s    78.86%
+    Req/Sec    51.08     12.56   101.00     85.17%
+  1765 requests in 10.05s, 506.75KB read
+  Socket errors: connect 0, read 0, write 0, timeout 204
+Requests/sec:    175.56
+Transfer/sec:     50.41KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=330 ===
+COMMAND: wrk -c330 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 330 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.77s   105.49ms   1.99s    63.76%
+    Req/Sec    45.87     11.57    90.00     73.82%
+  1575 requests in 10.05s, 452.20KB read
+  Socket errors: connect 0, read 0, write 0, timeout 234
+Requests/sec:    156.70
+Transfer/sec:     44.99KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=340 ===
+COMMAND: wrk -c340 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 340 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.93s    18.27ms   2.00s    90.67%
+    Req/Sec    43.38     11.64    90.00     74.10%
+  1447 requests in 10.06s, 415.45KB read
+  Socket errors: connect 0, read 0, write 0, timeout 300
+Requests/sec:    143.89
+Transfer/sec:     41.31KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=350 ===
+COMMAND: wrk -c350 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 350 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.99s    13.03ms   2.00s    97.56%
+    Req/Sec    43.24     11.93   111.00     73.17%
+  1427 requests in 10.06s, 409.71KB read
+  Socket errors: connect 0, read 0, write 0, timeout 360
+Requests/sec:    141.78
+Transfer/sec:     40.71KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=360 ===
+COMMAND: wrk -c360 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 360 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.94s    35.36ms   1.99s    57.14%
+    Req/Sec    43.36     10.63    90.00     78.90%
+  1427 requests in 10.07s, 409.71KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1406
+Requests/sec:    141.75
+Transfer/sec:     40.70KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=370 ===
+COMMAND: wrk -c370 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 370 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.97s    19.08ms   2.00s    63.64%
+    Req/Sec    43.19     11.69    90.00     71.91%
+  1411 requests in 10.07s, 405.11KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1400
+Requests/sec:    140.08
+Transfer/sec:     40.22KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=380 ===
+COMMAND: wrk -c380 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 380 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.39     12.06    90.00     74.38%
+  1405 requests in 10.08s, 403.39KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1405
+Requests/sec:    139.44
+Transfer/sec:     40.03KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=390 ===
+COMMAND: wrk -c390 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 390 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.37     13.76    90.00     78.75%
+  1397 requests in 10.07s, 401.09KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1397
+Requests/sec:    138.74
+Transfer/sec:     39.83KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=400 ===
+COMMAND: wrk -c400 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.42     13.15   110.00     74.37%
+  1386 requests in 10.07s, 397.93KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1386
+Requests/sec:    137.61
+Transfer/sec:     39.51KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=410 ===
+COMMAND: wrk -c410 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 410 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.53     12.34    80.00     70.19%
+  1376 requests in 10.07s, 395.06KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1376
+Requests/sec:    136.62
+Transfer/sec:     39.22KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=420 ===
+COMMAND: wrk -c420 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 420 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.43     13.00    90.00     73.31%
+  1364 requests in 10.07s, 391.62KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1364
+Requests/sec:    135.41
+Transfer/sec:     38.88KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=430 ===
+COMMAND: wrk -c430 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 430 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.29     13.56    90.00     80.32%
+  1353 requests in 10.09s, 388.46KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1353
+Requests/sec:    134.04
+Transfer/sec:     38.48KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=440 ===
+COMMAND: wrk -c440 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 440 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.31     12.78    80.00     70.78%
+  1348 requests in 10.07s, 387.02KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1348
+Requests/sec:    133.89
+Transfer/sec:     38.44KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=450 ===
+COMMAND: wrk -c450 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 450 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.63     14.24   101.00     75.17%
+  1333 requests in 10.08s, 382.72KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1333
+Requests/sec:    132.24
+Transfer/sec:     37.97KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=460 ===
+COMMAND: wrk -c460 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 460 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.27     13.95   100.00     79.54%
+  1327 requests in 10.08s, 380.99KB read
+  Socket errors: connect 0, read 1, write 0, timeout 1327
+Requests/sec:    131.62
+Transfer/sec:     37.79KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=470 ===
+COMMAND: wrk -c470 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 470 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.48     13.36    90.00     68.90%
+  1320 requests in 10.08s, 378.98KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1320
+Requests/sec:    130.96
+Transfer/sec:     37.60KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=480 ===
+COMMAND: wrk -c480 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 480 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.49     14.08   100.00     80.33%
+  1312 requests in 10.08s, 376.69KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1312
+Requests/sec:    130.17
+Transfer/sec:     37.37KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=490 ===
+COMMAND: wrk -c490 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 490 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.78     14.38   100.00     76.98%
+  1298 requests in 10.08s, 372.67KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1298
+Requests/sec:    128.75
+Transfer/sec:     36.97KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=1024, threads=4, connections=500 ===
+COMMAND: wrk -c500 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.44     14.62   100.00     79.18%
+  1291 requests in 10.08s, 370.66KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1291
+Requests/sec:    128.02
+Transfer/sec:     36.76KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+
+###############################
+### max-queue = 2048
+###############################
+
+
+=== max-queue=2048, threads=4, connections=300 ===
+COMMAND: wrk -c300 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.56s   371.14ms   1.73s    88.35%
+    Req/Sec    43.96      6.56    70.00     91.50%
+  1759 requests in 10.08s, 505.03KB read
+Requests/sec:    174.42
+Transfer/sec:     50.08KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=310 ===
+COMMAND: wrk -c310 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 310 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.76s    30.42ms   2.00s    95.21%
+    Req/Sec    43.23      9.58    80.00     81.31%
+  1471 requests in 10.06s, 422.34KB read
+  Socket errors: connect 0, read 0, write 0, timeout 240
+Requests/sec:    146.27
+Transfer/sec:     41.99KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=320 ===
+COMMAND: wrk -c320 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 320 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.81s    23.78ms   2.00s    95.65%
+    Req/Sec    43.66      9.17    70.00     82.44%
+  1476 requests in 10.07s, 423.77KB read
+  Socket errors: connect 0, read 0, write 0, timeout 259
+Requests/sec:    146.59
+Transfer/sec:     42.09KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=330 ===
+COMMAND: wrk -c330 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 330 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.87s    17.63ms   2.00s    96.24%
+    Req/Sec    43.23      9.85    90.00     81.33%
+  1449 requests in 10.06s, 416.02KB read
+  Socket errors: connect 0, read 0, write 0, timeout 279
+Requests/sec:    144.04
+Transfer/sec:     41.36KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=340 ===
+COMMAND: wrk -c340 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 340 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.94s    15.21ms   1.99s    94.31%
+    Req/Sec    43.39     10.88    70.00     72.73%
+  1444 requests in 10.06s, 414.59KB read
+  Socket errors: connect 0, read 0, write 0, timeout 302
+Requests/sec:    143.55
+Transfer/sec:     41.21KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=350 ===
+COMMAND: wrk -c350 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 350 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.99s    13.18ms   2.00s    97.88%
+    Req/Sec    43.29     10.50    70.00     78.35%
+  1429 requests in 10.07s, 410.28KB read
+  Socket errors: connect 0, read 0, write 0, timeout 342
+Requests/sec:    141.86
+Transfer/sec:     40.73KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=360 ===
+COMMAND: wrk -c360 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 360 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.94s    33.43ms   1.99s    65.00%
+    Req/Sec    43.48     11.16    80.00     70.37%
+  1425 requests in 10.06s, 409.13KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1405
+Requests/sec:    141.66
+Transfer/sec:     40.67KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=370 ===
+COMMAND: wrk -c370 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 370 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.98s    10.98ms   1.99s    42.86%
+    Req/Sec    43.48     13.14   101.00     75.00%
+  1417 requests in 10.08s, 406.83KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1410
+Requests/sec:    140.64
+Transfer/sec:     40.38KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=380 ===
+COMMAND: wrk -c380 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 380 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.81     13.35    90.00     70.79%
+  1406 requests in 10.07s, 403.68KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1406
+Requests/sec:    139.62
+Transfer/sec:     40.09KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=390 ===
+COMMAND: wrk -c390 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 390 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.35     12.91   101.00     75.86%
+  1393 requests in 10.07s, 399.94KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1393
+Requests/sec:    138.32
+Transfer/sec:     39.71KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=400 ===
+COMMAND: wrk -c400 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.06     12.79    80.00     70.25%
+  1376 requests in 10.07s, 395.06KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1376
+Requests/sec:    136.61
+Transfer/sec:     39.22KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=410 ===
+COMMAND: wrk -c410 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 410 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.25     13.59    80.00     78.98%
+  1372 requests in 10.07s, 393.91KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1372
+Requests/sec:    136.23
+Transfer/sec:     39.11KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=420 ===
+COMMAND: wrk -c420 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 420 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.31     12.88    90.00     73.08%
+  1364 requests in 10.06s, 391.62KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1364
+Requests/sec:    135.55
+Transfer/sec:     38.92KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=430 ===
+COMMAND: wrk -c430 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 430 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.62     15.43   120.00     76.80%
+  1354 requests in 10.08s, 388.75KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1354
+Requests/sec:    134.26
+Transfer/sec:     38.55KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=440 ===
+COMMAND: wrk -c440 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 440 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.29     13.28   101.00     71.80%
+  1347 requests in 10.08s, 386.74KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1347
+Requests/sec:    133.57
+Transfer/sec:     38.35KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=450 ===
+COMMAND: wrk -c450 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 450 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.53     14.15   100.00     78.76%
+  1342 requests in 10.08s, 385.30KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1342
+Requests/sec:    133.15
+Transfer/sec:     38.23KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=460 ===
+COMMAND: wrk -c460 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 460 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.32     14.05    90.00     76.49%
+  1326 requests in 10.08s, 380.71KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1326
+Requests/sec:    131.57
+Transfer/sec:     37.77KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=470 ===
+COMMAND: wrk -c470 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 470 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.69     14.25    90.00     77.70%
+  1316 requests in 10.07s, 377.84KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1316
+Requests/sec:    130.64
+Transfer/sec:     37.51KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=480 ===
+COMMAND: wrk -c480 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 480 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.52     12.11    80.00     73.91%
+  1313 requests in 10.08s, 376.97KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1313
+Requests/sec:    130.23
+Transfer/sec:     37.39KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=490 ===
+COMMAND: wrk -c490 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 490 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.49     15.82   110.00     70.21%
+  1292 requests in 10.09s, 370.95KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1292
+Requests/sec:    128.06
+Transfer/sec:     36.77KB
+
+
+STDERR:
+
+
+----------------------------------------
+
+=== max-queue=2048, threads=4, connections=500 ===
+COMMAND: wrk -c500 -d10s -t4 http://127.0.0.1:1234
+
+STDOUT:
+Running 10s test @ http://127.0.0.1:1234
+  4 threads and 500 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us     nan%
+    Req/Sec    43.20     13.81   110.00     79.05%
+  1289 requests in 10.09s, 370.08KB read
+  Socket errors: connect 0, read 0, write 0, timeout 1289
+Requests/sec:    127.71
+Transfer/sec:     36.67KB
+
+
+STDERR:
+
+
+----------------------------------------
