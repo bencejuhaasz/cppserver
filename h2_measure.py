@@ -11,31 +11,25 @@ from pathlib import Path
 # ============================================================
 # Mérési konfiguráció — H2: worker pool méretének hatása
 # ============================================================
-RUNS = 1
-DURATION = 10
-WORKER_COUNTS = [4, 16]
-CONNECTIONS_LIST = [8]
-VALIDATION_CONNECTIONS = [256]
 
-
-#RUNS = 5
-#DURATION = 60
+RUNS = 5
+DURATION = 60
 WARMUP = 10
 COOLDOWN = 5
 SERVER_STARTUP_WAIT = 2
 QUEUE_SIZE = 2048
 
 # H2: worker értékek
-#WORKER_COUNTS = [1, 2, 4, 6, 8, 12, 16, 24, 32]
+WORKER_COUNTS = [1, 2, 4, 6, 8, 12, 16, 24, 32]
 
 # Két kliensszámmal mérünk (Opció X):
 # - c=8: knee point felett kicsivel, éles optimum-keresés
 # - c=64: mérsékelten telített, IO-bound előny láthatóvá válik
-#CONNECTIONS_LIST = [8, 64]
+CONNECTIONS_LIST = [8, 64]
 
 # Validációs mérés a max worker konfiguráción
 VALIDATION_WORKERS = 32
-#VALIDATION_CONNECTIONS = [256, 512]
+VALIDATION_CONNECTIONS = [256, 512]
 
 # Task típusok
 TASK_TYPES = [
