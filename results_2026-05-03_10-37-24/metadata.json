@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-05-03_10-37-24",
+  "hypothesis": "H1",
+  "description": "Tel\u00edt\u00e9si pont a klienssz\u00e1m f\u00fcggv\u00e9ny\u00e9ben (CPU-bound)",
+  "config": {
+    "runs": 5,
+    "duration_sec": 60,
+    "warmup_sec": 10,
+    "cooldown_sec": 5,
+    "queue_size": 2048,
+    "wrk_threads": 2,
+    "wrk_threads_note": "c=1 eset\u00e9n automatikusan 1 thread",
+    "connections": [
+      1,
+      2,
+      4,
+      6,
+      8,
+      12,
+      16,
+      24,
+      32,
+      48,
+      64,
+      96,
+      128,
+      192,
+      256
+    ],
+    "server_cores": "0-3",
+    "wrk_cores": "6-7",
+    "address": "http://127.0.0.1:1234"
+  }
+}
