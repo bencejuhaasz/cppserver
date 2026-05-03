@@ -11,6 +11,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fcntl.h>      // posix_fadvise
+#include <unistd.h>     // fsync, close
+#include <sys/stat.h>   // open
 
 IoWorker::IoWorker(int id) : WorkerBase(id) {}
 
@@ -25,7 +28,7 @@ void IoWorker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socke
     }
 
     auto start = std::chrono::steady_clock::now();
-    IoStats stats = runDiskIoWorkload(thread_index, 200, 4096);
+    IoStats stats = runDiskIoWorkload(thread_index, 2048, 4096);
     auto end = std::chrono::steady_clock::now();
     long long elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
@@ -54,7 +57,10 @@ void IoWorker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socke
 IoWorker::IoStats IoWorker::runDiskIoWorkload(int thread_index, int rounds, std::size_t chunk_size) {
     namespace fs = std::filesystem;
 
-    fs::path temp_path = fs::temp_directory_path() /
+    // FONTOS: NEM a /tmp-t használjuk, mert az tmpfs (RAM)!
+    // /var/tmp általában valódi diszk-en van.
+    fs::path temp_dir("/var/tmp");
+    fs::path temp_path = temp_dir /
         ("cppserver_io_worker_" + std::to_string(id) + "_" + std::to_string(thread_index) + ".dat");
 
     std::vector<char> chunk(chunk_size);
@@ -66,30 +72,64 @@ IoWorker::IoStats IoWorker::runDiskIoWorkload(int thread_index, int rounds, std:
     std::size_t bytes_read = 0;
     std::uint64_t checksum = 0;
 
+    // === ÍRÁSI FÁZIS — fsync-cel kényszerített disk flush ===
     {
-        std::ofstream out(temp_path, std::ios::binary | std::ios::trunc);
-        for (int i = 0; i < rounds; ++i) {
-            out.write(chunk.data(), static_cast<std::streamsize>(chunk.size()));
-            bytes_written += chunk.size();
+        int fd = ::open(temp_path.c_str(),
+                        O_WRONLY | O_CREAT | O_TRUNC,
+                        S_IRUSR | S_IWUSR);
+        if (fd < 0) {
+            std::cerr << "IoWorker " << id << " failed to open temp file for writing: "
+                      << temp_path << std::endl;
+            return IoStats{0, 0, 0};
         }
+
+        for (int i = 0; i < rounds; ++i) {
+            ssize_t written = ::write(fd, chunk.data(), chunk.size());
+            if (written < 0) {
+                std::cerr << "IoWorker " << id << " write failed\n";
+                break;
+            }
+            bytes_written += static_cast<std::size_t>(written);
+        }
+
+        // Kényszerített disk flush — itt blokkolódik valódi IO-ig
+        if (::fsync(fd) != 0) {
+            std::cerr << "IoWorker " << id << " fsync failed\n";
+        }
+
+        // Page cache eldobása — a következő olvasás biztosan diszkről jön
+        ::posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+
+        ::close(fd);
     }
 
+    // === OLVASÁSI FÁZIS — page cache megkerülésével ===
     {
-        std::ifstream in(temp_path, std::ios::binary);
+        int fd = ::open(temp_path.c_str(), O_RDONLY);
+        if (fd < 0) {
+            std::cerr << "IoWorker " << id << " failed to open temp file for reading\n";
+            return IoStats{bytes_written, 0, 0};
+        }
+
+        // Hint a kernelnek: ne cache-elje, kérjük a diszkről
+        ::posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
+
         std::vector<char> read_buf(chunk_size);
-        while (in) {
-            in.read(read_buf.data(), static_cast<std::streamsize>(read_buf.size()));
-            std::streamsize got = in.gcount();
+        while (true) {
+            ssize_t got = ::read(fd, read_buf.data(), read_buf.size());
             if (got <= 0) {
                 break;
             }
             bytes_read += static_cast<std::size_t>(got);
-            for (std::streamsize i = 0; i < got; ++i) {
+            for (ssize_t i = 0; i < got; ++i) {
                 checksum += static_cast<unsigned char>(read_buf[static_cast<std::size_t>(i)]);
             }
         }
+
+        ::close(fd);
     }
 
+    // Takarítás
     std::error_code remove_ec;
     fs::remove(temp_path, remove_ec);
 
