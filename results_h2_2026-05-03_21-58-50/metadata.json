@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-05-03_21-58-50",
+  "hypothesis": "H2",
+  "description": "Worker pool m\u00e9ret\u00e9nek hat\u00e1sa CPU- \u00e9s IO-bound taskokn\u00e1l",
+  "config": {
+    "runs": 5,
+    "duration_sec": 60,
+    "warmup_sec": 10,
+    "cooldown_sec": 5,
+    "queue_size": 2048,
+    "worker_counts": [
+      1,
+      2,
+      4,
+      6,
+      8,
+      12,
+      16,
+      24,
+      32
+    ],
+    "connections_list": [
+      8,
+      64
+    ],
+    "validation_workers": 32,
+    "validation_connections": [
+      256,
+      512
+    ],
+    "task_types": [
+      "cpu",
+      "io"
+    ],
+    "server_cores": "0-3",
+    "wrk_cores": "6-7",
+    "address": "http://127.0.0.1:1234"
+  }
+}
