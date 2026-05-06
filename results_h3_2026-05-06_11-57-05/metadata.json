@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-05-06_11-57-05",
+  "hypothesis": "H3",
+  "description": "Task queue m\u00e9ret\u00e9nek hat\u00e1sa latencyre \u00e9s reject r\u00e1t\u00e1ra",
+  "config": {
+    "runs": 5,
+    "duration_sec": 60,
+    "warmup_sec": 10,
+    "cooldown_sec": 5,
+    "workers": 8,
+    "queue_sizes": [
+      1,
+      4,
+      16,
+      64,
+      256,
+      1024,
+      2048
+    ],
+    "connections_list": [
+      128,
+      256
+    ],
+    "task_types": [
+      "cpu",
+      "io"
+    ],
+    "server_cores": "0-3",
+    "wrk_cores": "6-7",
+    "address": "http://127.0.0.1:1234"
+  }
+}
