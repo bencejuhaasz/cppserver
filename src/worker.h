@@ -6,6 +6,8 @@
 
 class Worker : public WorkerBase {
 public:
-    explicit Worker(int id);
+    explicit Worker(int id, std::string upstream_url);
     void handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) override;
+private:
+    std::string upstream_url;
 };

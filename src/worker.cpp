@@ -12,7 +12,8 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
     return total;
 }
 
-Worker::Worker(int id) : WorkerBase(id) {}
+Worker::Worker(int id, std::string upstream_url)
+    : WorkerBase(id), upstream_url(std::move(upstream_url)) {}
 
 void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket, int thread_index) {
     std::cout << "Handling request in worker id: " << id << " thread index: " << thread_index << std::endl;
@@ -23,13 +24,11 @@ void Worker::handleRequest(std::unique_ptr<boost::asio::ip::tcp::socket> socket,
         return;
     }
 
-    // Build the API URL per client (example fixed timezone as requested)
-    const char* api_url = "https://time.now/developer/api/timezone/Europe/London";
 
     std::string api_response;
     CURL* curl = curl_easy_init();
     if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, api_url);
+        curl_easy_setopt(curl, CURLOPT_URL, upstream_url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &api_response);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);

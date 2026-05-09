@@ -10,8 +10,12 @@
 #include "thread_pool.h"
 
 const int PORT = 1234;
-const int DEFAULT_MAX_THREADS = 4;                  // alapértelmezett worker szám
-const size_t DEFAULT_MAX_QUEUE = 1024;              // default maximum queued connections per-thread-pool
+const int DEFAULT_MAX_THREADS = 4;
+const size_t DEFAULT_MAX_QUEUE = 1024;
+
+// ÚJ: default upstream URL
+const std::string DEFAULT_UPSTREAM_URL = "https://time.now/developer/api/timezone/Europe/London";
+
 static boost::asio::io_context* io_context_ptr = nullptr;
 
 enum class WorkerType {
@@ -33,19 +37,21 @@ void sighandler(int signal) {
 
 
 void printUsage(const char* program) {
-    std::cout << "Usage: " << program << " [--cpu | --io-heavy] [--max-queue N] [--max-threads N]\n";
+    std::cout << "Usage: " << program << " [--cpu | --io-heavy] [--max-queue N] [--max-threads N] [--upstream URL]\n";
     std::cout << "  --cpu            Use CPU-intensive worker\n";
     std::cout << "  --io-heavy       Use IO-intensive test worker\n";
     std::cout << "  --max-queue N    Set maximum queued connections per thread pool (default " << DEFAULT_MAX_QUEUE << ")\n";
     std::cout << "  --max-threads N  Set worker thread pool size (default " << DEFAULT_MAX_THREADS << ")\n";
+    std::cout << "  --upstream URL   Set upstream URL for default network proxy worker\n";
+    std::cout << "                   (default: " << DEFAULT_UPSTREAM_URL << ")\n";
     std::cout << "  default          Use existing network worker\n";
 }
 
 int main(int argc, char* argv[]) {
-    // Parse command-line arguments
     WorkerType worker_type = WorkerType::DEFAULT_WORKER;
     size_t max_queue = DEFAULT_MAX_QUEUE;
     int max_threads = DEFAULT_MAX_THREADS;
+    std::string upstream_url = DEFAULT_UPSTREAM_URL;  // ÚJ
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -82,6 +88,13 @@ int main(int argc, char* argv[]) {
                 std::cerr << "Error: invalid number for --max-threads: " << val << "\n";
                 return 1;
             }
+        } else if (arg == "--upstream") {  // ÚJ blokk
+            if (i + 1 >= argc) {
+                std::cerr << "Error: --upstream requires a URL argument\n";
+                printUsage(argv[0]);
+                return 1;
+            }
+            upstream_url = argv[++i];
         } else if (arg == "--io-heavy") {
             worker_type = WorkerType::IO_WORKER;
         } else if (arg == "--help" || arg == "-h") {
@@ -117,6 +130,12 @@ int main(int argc, char* argv[]) {
                     return 1;
                 }
             }
+            // support --upstream=URL form (ÚJ)
+            const std::string upstream_prefix = "--upstream=";
+            if (arg.rfind(upstream_prefix, 0) == 0) {
+                upstream_url = arg.substr(upstream_prefix.size());
+                continue;
+            }
             std::cerr << "Unknown option: " << arg << std::endl;
             printUsage(argv[0]);
             return 1;
@@ -131,7 +150,12 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "cppserver: starting server with " << worker_type_name
               << " worker, threads=" << max_threads
-              << ", max_queue=" << max_queue << std::endl;
+              << ", max_queue=" << max_queue;
+    if (worker_type == WorkerType::DEFAULT_WORKER) {
+        std::cout << ", upstream=" << upstream_url;  // ÚJ
+    }
+    std::cout << std::endl;
+
     std::signal(SIGINT, sighandler);
     if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
         std::cerr << "cppserver: curl_global_init failed" << std::endl;
@@ -148,19 +172,18 @@ int main(int argc, char* argv[]) {
             boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT)
         );
 
-        // Set SO_REUSEADDR option
         acceptor.set_option(boost::asio::socket_base::reuse_address(true));
 
         std::cout << "Listening on port: " << PORT << "...\n";
 
-        // Create thread pool with appropriate worker factory
-        ThreadPool pool(max_threads, [worker_type](int id) -> std::unique_ptr<WorkerBase> {
+        // MÓDOSÍTVA: a factory most kapja az upstream_url-t és átadja a Workernek
+        ThreadPool pool(max_threads, [worker_type, upstream_url](int id) -> std::unique_ptr<WorkerBase> {
             if (worker_type == WorkerType::CPU_WORKER) {
                 return std::make_unique<CpuWorker>(id);
             } else if (worker_type == WorkerType::IO_WORKER) {
                 return std::make_unique<IoWorker>(id);
             } else {
-                return std::make_unique<Worker>(id);
+                return std::make_unique<Worker>(id, upstream_url);
             }
         }, max_queue);
         pool.start();
