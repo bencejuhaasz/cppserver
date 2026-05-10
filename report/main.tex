@@ -123,12 +123,18 @@ célja a CPU-terhelés kontrollált növelése, hogy a különböző konkurens m
 \subsection{A téma motivációja}
 \label{ssec:motivacio}
 
-% Itt jön a motiváció bevezető szövege.
+Az Önálló laboratóriumi feladatom során az volt a célom, hogy megismerjem,
+milyen szempontok mentén lehet tervezni egy több szálon működő C++ szerverkomponenst,
+valamint hogy az ilyen jellegű működéshez milyen eszközöket biztosít ez a programnyelv.
+Kívácsi voltam továbbá arra is, hogy az általam készítendő terhelést modellező programok
+hogyan skálázódnak a processzormagokon a szimulált kliensek számával, ugyanis nem üzemeltettem
+még olyan rendszert, ahol a szűk keresztmetszet a kliensek számával vált volna jelentőssé.
+
 
 \subsection{Elméleti háttér}
 \label{ssec:elmeleti-hatter}
 
-% Itt jön a queueing theory rövid ismertetése.
+% a queueing theory rövid ismertetése.
 % Little's Law: $L = \lambda \cdot W$
 % M/M/c modell: szerver véges worker pool-lal
 % Példa egyenlet:
@@ -141,9 +147,7 @@ célja a CPU-terhelés kontrollált növelése, hogy a különböző konkurens m
 \subsection{A vizsgált hipotézisek}
 \label{ssec:hipotezisek}
 
-% Tartalom: a 4 hipotézis tömör megfogalmazása listában vagy bekezdésekben.
-%
-% Pl.:
+
  \begin{itemize}
      \item \textbf{H1:} Telítési pont létezése a kliensszám függvényében
      \item \textbf{H2:} Worker pool méretének hatása a teljesítményre
@@ -157,7 +161,15 @@ célja a CPU-terhelés kontrollált növelése, hogy a különböző konkurens m
 \section{A konkrét munka ismertetése}
 \label{sec:munka}
 % =============================================================
+Az Önálló laboratóriumi munkám során először elkészítettem a C++ szerver program implementációját.
+Ennek kezdetben az Internetről lehető legtöbb forrást felhasználva álltam neki, beleértve
+google keresési találatokat a stackexchange.com fúrumról és a generatív nagy nyelvi modellek kimeneteit is.
+Amikor a tesztjeim során elkezdett működni egy így megismert koncepció, ellenőriztem, hogy a cppreference.com, a C++ szabvány
+dokumentációja szerint valóban arra a célra való-e az általam újonnan megismert komponens, mint amire éppen használom.
+Ezt követően iteratívan egyeztettem a témavezetőmmel a szoftver állapotáról, hogy pontosítást kapjak a megközelítésemben.
 
+Segítségemre voltak továbbá a párhuzamos feladatokat megvalósító kód implementálása során azok az ismeretek,
+amelyekett korábban a Java programozás című tárgyon sajátítottam el.
 % =============================================================
 \subsection{Mérési környezet és módszertan}
 \label{ssec:kornyezet}
@@ -192,15 +204,9 @@ A szervert a GNU Compiler Collection (GCC) segítségével fordítottam, a 16.1.
 A mérési adatokat Python programok segítségével állítottam elő és rendszereztem, valamint dolgoztam fel.
 
 
-% TODO: ~0.5 oldal. Tartalom:
-% - Hardver: laptop CPU (4 fizikai mag, 8 logikai mag, hyperthreading)
-% - OS, kernel, fordító verziók
-% - Mérőeszköz: wrk
-% - Mag-pinning stratégia (taskset)
+% TODO: ~0.5 oldal
 % - Warmup, mérési idő, ismétlések
 % - Adatfeldolgozás: Python szkriptek, statisztika
-
-% Itt jönnek a mérési környezet részletei.
 
 % =============================================================
 \subsection{A szerver implementációja}
@@ -438,7 +444,6 @@ A mérési adatokat Python programok segítségével állítottam elő és rends
 \subsection{Továbbfejlesztési lehetőségek}
 \label{ssec:tovabbfejlesztes}
 
-% Néhány lehetséges irány felsorolása:
 % \begin{itemize}
 %     \item Cache-stratégiák bevezetése (LRU, LFU, ARC)
 %     \item Lock-free adatszerkezetek vizsgálata
