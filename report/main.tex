@@ -269,6 +269,13 @@ a bejövő kérések kiszolgálását. A változó paraméter a mérés során a
 rendre 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256 értékeken, hogy
 széles tartományban vizsgálhassam a szerver viselkedését a kliensszám függvényében, és így pontosan beazonosíthassam azt a pontot,
 ahol telítődési jelenség jelentkezik.
+A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
+Egy beállítás 60 másodpercig tartott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez, különösen a tail latency tekintetében.
+Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
+Előttük két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
+pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem.
+
 
 
  H1 igazolt, ha a latency-kliensszám görbén beazonosítható egy pont, ahol 
@@ -335,12 +342,17 @@ eltérő jellegéből adódóan úgy döntöttem, hogy két különböző kliens
 mert különböző mértékben kezdenek el telítődni az erőforrások ezek esetén.
 A két válaszott kliensszámom 8 és 64 lett, ezeknél már mindkét esetben meg kell, hogy jelenjen a telítődés
 H1 eredményei szerint. A queue méretét ismét nagyra, 2048-ra választottam, hogy ez ne legyen szűk keresztmetszet a mérés során.
+A worker pool méretét rendre 1, 2, 4, 6, 8, 12, 16, 24, 32 értékeken iteráltam a mérés során.
+A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
+Egy beállítás 60 másodpercig tartott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez, különösen a tail latency tekintetében.
+Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
+Előttük két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
+pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem.
 
-
-
-Mérési elrendezés: fix kliensszám, H1 knee pointja közelében, hogy érezhető legyen a hatás limiten legyek.
-Queue: elég nagy hogy legyen szabad hely.
-Változó: pool mérete, task típus
+    H2 igazolt, ha a CPU-bound taskok esetén a worker pool méretének optimuma a processzormagok számának közelében van (±10%),
+     és efölött válaszidő romlás mérhető,
+    míg az IO-bound taskok esetén ez az optimum jelentősen nagyobb, legalább kétszerese a processzormagok számának.
 
 
 
@@ -390,6 +402,8 @@ Változó: pool mérete, task típus
 % - Hipotézis: kis queue → reject, nagy queue → bufferbloat
 % - Mérési elrendezés: 7 queue méret, 2 task, 2 kliensszám
 % - A reject ráta mérési módja (TCP close → wrk read error)
+A worker pool előtti task queue-nak van egy optimális mérete, adott kliensszám és worker pool méret mellett. 
+A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi hamar megtelik, és emiatt a szerver elutasítja a bejövő kéréseket.
 
 \subsubsection{Eredmények}
 \label{sssec:h3-eredmenyek}
