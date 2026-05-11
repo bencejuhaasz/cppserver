@@ -129,6 +129,9 @@ valamint hogy az ilyen jellegű működéshez milyen eszközöket biztosít ez a
 Kívácsi voltam továbbá arra is, hogy az általam készítendő terhelést modellező programok
 hogyan skálázódnak a processzormagokon a szimulált kliensek számával, ugyanis nem üzemeltettem
 még olyan rendszert, ahol a szűk keresztmetszet a kliensek számával vált volna jelentőssé.
+Mindezt annak érdekében szerettem volna megvalósítani, hogy ezáltal olyan tapasztalatokat szerezzek, amelyeket
+később a gyakorlatban is hasznosíthatok, amikor majd egy nagyobb rendszer teljesítményének optimalizálásán fogok dolgozni
+pélául egy ipari környezetben.
 
 
 \subsection{Elméleti háttér}
@@ -163,13 +166,26 @@ még olyan rendszert, ahol a szűk keresztmetszet a kliensek számával vált vo
 % =============================================================
 Az Önálló laboratóriumi munkám során először elkészítettem a C++ szerver program implementációját.
 Ennek kezdetben az Internetről lehető legtöbb forrást felhasználva álltam neki, beleértve
-google keresési találatokat a stackexchange.com fúrumról és a generatív nagy nyelvi modellek kimeneteit is.
+google keresési találatokat a stackexchange.com fórumról és a generatív nagy nyelvi modellek kimeneteit is.
 Amikor a tesztjeim során elkezdett működni egy így megismert koncepció, ellenőriztem, hogy a cppreference.com, a C++ szabvány
 dokumentációja szerint valóban arra a célra való-e az általam újonnan megismert komponens, mint amire éppen használom.
 Ezt követően iteratívan egyeztettem a témavezetőmmel a szoftver állapotáról, hogy pontosítást kapjak a megközelítésemben.
 
 Segítségemre voltak továbbá a párhuzamos feladatokat megvalósító kód implementálása során azok az ismeretek,
 amelyekett korábban a Java programozás című tárgyon sajátítottam el.
+
+Az implementáció során fény derült arra, hogy a szerverprogramnak a felépítéséből fakadóan két olyan szabadon
+hangolható paramétere van, amelyeknek a teljesítményre gyakorolt hatását érdemes megvizsgálni. Az egyik ilyen a worker pool mérete,
+a másik pedig a task queue mérete. A később felállított hipotéziseim megfogalmazása és a mérések során
+lényegében ezeknek a hatásával foglalkoztam. 
+
+A mérések során a wrk nevű HTTP benchmarking eszközt használtam, amelynek segítségével különböző számú klienst tudtam szimulálni, 
+és így megvizsgálni a szerver teljesítményét a kliensszám függvényében. 
+Ez az eszköz arra is alkalmas, hogy a késleltetési idő különböző statisztikai jellemzőit, például a p99 értékét is mérje, ami a dolgozatban fontos szerepet játszik a teljesítmény elemzésében.
+Egy ilyen érték például azt mutatja meg, hogy a kérések adott százaléka milyen késleltetési időn belül teljesül, ami egy fontos mérőszám a szerver válaszidejének értékeléséhez,
+ugyanis ezzel kifejezhető, hogy a kevésbé ideális esetekben hogyan viselkedik a program.
+A mérési eredmények feldolgozásához Python programokat írtam, 
+amelyek segítségével rendszereztem és elemeztem az adatokat, valamint előállítottam a dolgozatban szereplő ábrákat.
 % =============================================================
 \subsection{Mérési környezet és módszertan}
 \label{ssec:kornyezet}
@@ -220,7 +236,12 @@ A mérési adatokat Python programok segítségével állítottam elő és rends
 % - A munkavégzés bemutatása task típusonként röviden
 
 % Itt jön az implementáció rövid ismertetése.
-
+A szerverprogram a következő fő komponensekből áll:
+\begin{itemize}
+    \item \textbf{Main szál:} Ez a komponens felelős a konfigurációs paraméterek feldolgozásáért, a TCP socket létrehozásáért és a bejövő kapcsolatok fogadásáért. Amikor egy új kliens csatlakozik, a main szál egy új taskot hoz létre, amely tartalmazza a kliens kérését, és ezt a taskot elhelyezi a worker pool által használt task queue-ba.
+    \item \textbf{Worker pool:} Ez egy fix méretű szálcsoport, amely a main szál által létrehozott taskokat dolgozza fel. A worker szálak egy közös task queue-t használnak, ahonnan felveszik a feldolgozásra váró taskokat. A worker pool mérete konfigurálható, és ez az egyik vizsgált paraméter a dolgozatban.
+    \item \textbf{Task típusok:} A szerver három különböző típusú taskot képes feldolgozni: CpuWorker, IoWorker és egy default Worker, amely egy egyszerű network proxyként működik. A CpuWorker típusú taskok számításigényes műveleteket hajtanak végre, míg az IoWorker típusú taskok a lemezhez kapcsolódó műveleteket végeznek. A default Worker egyszerűen továbbítja a kéréseket egy upstream szerver felé, és visszaküldi a válaszokat a kliensnek.
+\end{itemize}
 % =============================================================
 \subsection{H1: Telítési pont a kliensszám függvényében}
 \label{ssec:h1}
@@ -236,6 +257,26 @@ A mérési adatokat Python programok segítségével állítottam elő és rends
 % - Elméleti háttér (Little's Law alapú predikció)
 % - Mérési elrendezés (paraméterek táblázata vagy felsorolása)
 % - Sikerkritérium
+
+A szerver válaszideje a párhuzamos kliensek számának függvényében nem-lineáris 
+karakterisztikát mutat: létezik egy kliensszám-küszöb (knee point), amelyen túl a 
+válaszidő meredeken növekszik, miközben a throughput telítődik vagy csökken.
+
+A mérési elrendezés során a worker pool mérete fixen négy, minden worker egy
+független processzormagon dolgozhat. A task queue méretét nagyra, 2048-ra válaszottam, hogy
+biztosan ne keletkezzen olyan eset, amikor megtelik, és emiatt a programnak el kell utasítania
+a bejövő kérések kiszolgálását. A változó paraméter a mérés során a kliensek száma, 
+rendre 1, 2, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256 értékeken, hogy
+széles tartományban vizsgálhassam a szerver viselkedését a kliensszám függvényében, és így pontosan beazonosíthassam azt a pontot,
+ahol telítődési jelenség jelentkezik.
+
+
+ H1 igazolt, ha a latency-kliensszám görbén beazonosítható egy pont, ahol 
+ a görbe meredeksége legalább 5x-ösére nő egy szűk tartományon belül, és a throughput 
+ ezen a ponton ±10\%-on belül stagnál.
+Várt eredmény: "Hockey stick" görbe; a pont a worker pool méretének közelében 
+jelenik meg CPU-bound task esetén.
+
 
 \subsubsection{Eredmények}
 \label{sssec:h1-eredmenyek}
@@ -280,6 +321,28 @@ A mérési adatokat Python programok segítségével állítottam elő és rends
 % - Hipotézis: CPU-bound optimum a magszámnál, IO-bound jelentősen több
 % - Mérési elrendezés: 9 worker érték, 2 task, 2 kliensszám
 % - Validációs mérés a 32 workeres maximumon
+
+Minden feladattípushoz, amit a worker pool végrehajt, létezik egy hozzá tartozó optimális worker pool méret. 
+Amikor a processzor a szűk keresztmetszet, akkor ez a méret körülbelül egyenlő a rendelkezésre álló processzormagok számával, +/- 10%, 
+míg amikor az IO műveletek a szűk keresztmetszet, akkor ez a méret jelentősen nagyobb, akár 4-10-szerese is lehet a processzormagok számának.
+
+A mérés célja annak megállapítása, hogy hogyan lehet kihasználni minél jobban a rendelkezésre álló erőforrásokat,
+úgy, hogy eközben ne keletkezzen olyan overhead, amely a kontextusváltások miatt rontja a válaszidőt.
+
+A mérés elrendezése során rögzített kliensszámot választottam, hogy ez ne befolyásolja a válaszidőt,
+tisztán a worker pool méretének hatása jelentkezzen. Azonban a két típusú, IO és CPU-bound feladatok
+eltérő jellegéből adódóan úgy döntöttem, hogy két különböző kliensszámmal is elvégzem a mérést mindkét esetben,
+mert különböző mértékben kezdenek el telítődni az erőforrások ezek esetén.
+A két válaszott kliensszámom 8 és 64 lett, ezeknél már mindkét esetben meg kell, hogy jelenjen a telítődés
+H1 eredményei szerint. A queue méretét ismét nagyra, 2048-ra választottam, hogy ez ne legyen szűk keresztmetszet a mérés során.
+
+
+
+Mérési elrendezés: fix kliensszám, H1 knee pointja közelében, hogy érezhető legyen a hatás limiten legyek.
+Queue: elég nagy hogy legyen szabad hely.
+Változó: pool mérete, task típus
+
+
 
 \subsubsection{Eredmények}
 \label{sssec:h2-eredmenyek}
