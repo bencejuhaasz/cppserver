@@ -413,8 +413,25 @@ illetve a task queue mérete is a szerver egy szabadon hangolható paramétere, 
 
 
 A mérési elrendezést úgy alakítottam ki, hogy a worker pool méretét kötöttre választottam meg, a H2 hipotézisben megtalált optimum értékére, ami 8 worker volt. Ez azért fontos, hogy a worker pool mérete ne legyen szűk keresztmetszet a mérés során, és így tisztán a task queue méretének hatása jelentkezzen.
-alapján. A kliensszámot úgy választottam meg, hogy a worker pool telített legyen, és megjelenhessen a task queue hatása, azáltal,
-hogy egyre több várakozó kérés kerül bele.
+alapján 8-ra. A kliensszámot úgy választottam meg, hogy a worker pool telített legyen, és megjelenhessen a task queue hatása, azáltal,
+hogy egyre több várakozó kérés kerül bele. Két kliensszám, 128 és 256 mellett mértem.
+A task queue méretét rendre 1, 4, 16, 64, 256, 1024, 2048 értékeken iteráltam a mérés során, hogy széles tartományban vizsgálhassam a hatását.
+Vizsgáltam CPU és IO-bound taskokat is, hogy lássam, hogy a különböző jellegű feladatok esetén hogyan jelentkezik ez a hatás.
+A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
+Egy beállítás 60 másodpercig futott, hogy elegendő időt biztosítson a stabil méréshez.
+Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
+A mérés elején két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
+pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem, hogy ha az operációs rendszer
+valamilyen általam nem kontrollelt háttérfolyamatot futtatna, akkor az ne zavarja a mérésemet.
+Eközben mértem, hogy hány sikeres kérés valósul meg másodpercenként, és hogy a válaszidő milyen statisztikai jellemzőket mutat.
+
+
+A hipotézis igazolt, ha létezik olyan queue méret, ahol a p99 latency mérhetően alacsonyabb (>20\%), mint a legnagyobb tesztelt méretnél, valamint
+ha a legkisebb tesztelt méreteknél (≤4) a reject ráta szignifikánsan (>5\%) nagyobb, mint az optimumnál, és
+a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos méret fölött, miközben a reject ráta közel nulla, ez igazolja az ún. bufferbloat-szerű viselkedést.
+
+
 
 
 \subsubsection{Eredmények}
