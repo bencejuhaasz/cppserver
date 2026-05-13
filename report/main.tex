@@ -296,7 +296,7 @@ jelenik meg CPU-bound task esetén.
 % Throughput és p99 latency együttes ábra:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h1_combined.png}
+    \includegraphics[width=0.85\textwidth]{h1_combined.png}
     \caption{H1: Throughput és p99 latency együttes viselkedése a kliensszám függvényében.}
     \label{fig:h1-combined}
 \end{figure}
@@ -304,7 +304,7 @@ jelenik meg CPU-bound task esetén.
 % Lineáris fit (Little's Law):
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h1_latency_linear.png}
+    \includegraphics[width=0.85\textwidth]{h1_latency_linear.png}
     \caption{H1: Latency lineáris karakterisztikája --- Little's Law szerinti illeszkedés.}
     \label{fig:h1-linear}
 \end{figure}
@@ -362,7 +362,7 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 % Throughput vs worker szám:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h2_throughput.png}
+    \includegraphics[width=0.85\textwidth]{h2_throughput.png}
     \caption{H2: Throughput a worker pool méretének függvényében task típusonként.}
     \label{fig:h2-throughput}
 \end{figure}
@@ -370,7 +370,7 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 % Optimum panelek:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.95\textwidth]{h2_optimum_panels.png}
+    \includegraphics[width=0.95\textwidth]{h2_optimum_panels.png}
     \caption{H2: Optimum keresése task $\times$ kliensszám szerint, throughput és latency együtt.}
     \label{fig:h2-panels}
 \end{figure}
@@ -404,6 +404,18 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 % - A reject ráta mérési módja (TCP close → wrk read error)
 A worker pool előtti task queue-nak van egy optimális mérete, adott kliensszám és worker pool méret mellett. 
 A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi hamar megtelik, és emiatt a szerver elutasítja a bejövő kéréseket.
+A worker pool előtti task queue-t, ami egy FIFO sor, tehát olyan sorrendben lépnek ki belőle az elemek, ahogyan bekerültek,
+azért hoztam létre, mert a bejövő kapcsolatok elfogadása és a kérések feldolgozása között van egy időbeli eltérés, mert különböző szálakon történnek.
+Emiatt biztosítanom kellett, hogy amíg nem veszi át őket egy worker feldolgozásra, legyen lehetőségem tárolni, és újabbakat elfogadni.
+A hipotézis motivációja egy nem dokumentált próbamérés, amit közvetlenül az implementáció után végeztem, és a
+task queue mérete és az átlagos latency között összefüggést mutatott. Ezért úgy döntöttem, hogy precízen is megvizsgálom ezt a kérdést,
+illetve a task queue mérete is a szerver egy szabadon hangolható paramétere, ezért a teljesség igényével ezt is vizsgálom.
+
+
+A mérési elrendezést úgy alakítottam ki, hogy a worker pool méretét kötöttre választottam meg, a H2 hipotézisben megtalált optimum értékére, ami 8 worker volt. Ez azért fontos, hogy a worker pool mérete ne legyen szűk keresztmetszet a mérés során, és így tisztán a task queue méretének hatása jelentkezzen.
+alapján. A kliensszámot úgy választottam meg, hogy a worker pool telített legyen, és megjelenhessen a task queue hatása, azáltal,
+hogy egyre több várakozó kérés kerül bele.
+
 
 \subsubsection{Eredmények}
 \label{sssec:h3-eredmenyek}
@@ -411,7 +423,7 @@ A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi
 % Tradeoff (4 panel):
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.95\textwidth]{h3_tradeoff.png}
+    \includegraphics[width=0.95\textwidth]{h3_tradeoff.png}
     \caption{H3: Latency és reject ráta kompromisszum a queue méret függvényében.}
     \label{fig:h3-tradeoff}
 \end{figure}
@@ -419,7 +431,7 @@ A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi
 % Reject ráta lépcsőfüggvény:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h3_reject_rate.png}
+    \includegraphics[width=0.85\textwidth]{h3_reject_rate.png}
     \caption{H3: Reject ráta lépcsőfüggvény jellege a queue méret függvényében.}
     \label{fig:h3-reject}
 \end{figure}
@@ -452,7 +464,7 @@ A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi
 % Throughput skálázódás:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h4_throughput.png}
+    \includegraphics[width=0.85\textwidth]{h4_throughput.png}
     \caption{H4: Throughput skálázódás task típusonként.}
     \label{fig:h4-throughput}
 \end{figure}
@@ -460,7 +472,7 @@ A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi
 % Normalizált latency:
 \begin{figure}[H]
     \centering
-    % \includegraphics[width=0.85\textwidth]{h4_normalized_latency.png}
+    \includegraphics[width=0.85\textwidth]{h4_normalized_latency.png}
     \caption{H4: Normalizált latency skálázódás (single-client érték = 1.0).}
     \label{fig:h4-normalized}
 \end{figure}
