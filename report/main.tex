@@ -102,10 +102,31 @@
 A dolgozat célja egy C++ nyelven implementált, több szálon működő lokális 
 cache szerver tervezése és vizsgálata, különös tekintettel a teljesítményoptimalizálási 
 lehetőségekre és azok mérési módszertanára. A rendszer egy párhuzamos feldolgozást alkalmazó 
-szerver architektúrát fog megvalósítani, amely klienskéréseket fogad, azokat worker szálak között osztja 
+szerver architektúrát valósít meg, amely klienskéréseket fogad, azokat worker szálak között osztja 
 szét, és a válasz előállítása során számításigényes feladatokat hajt végre. A számításigényes műveletek 
 célja a CPU-terhelés kontrollált növelése, hogy a különböző konkurens megoldások és cache-stratégiák hatása mérhetővé váljon.
 
+A cache szerver működését három különböző típusú algoritmussal modelleztem, amelyek célja az, hogy hűen reprezentálják
+a CPU-bound, IO-bound és hálózaton elérhető erőforrástól függő feladatok viselkedését egy párhuzamos végrehajtási környezetben.
+Ezek a feladatok végrehajtásra kerülnek minden egyes klienskérés hatására, majd a kliensek választ kapnak ezek eredményéről
+hálózaton keresztül.
+
+A CPU-bound feladatok nagy mértékben használják ki a rendelkezésükre álló processzoridőt, amíg az IO-bound feladatok ezzel ellentétben
+a lemezmeghajtó sávszélességét igyekeznek kihasználni, ami során az adatátvitel jellege miatt sűrűn várakozásra kényszerülnek, ezért
+a processzoridőt kevésbé használják ki. A hálózaton elérhető erőforrástól függő feladatok ezutóbbiakhoz hasonlóak, azzal a különbséggel,
+hogy azok esetében nem a lemezről, hanem a hálózatról érkező adatokra kell várni az olvasás során adott időközönként.
+Ezen feladatok számára a véges processzoridő és a lemez elérésének késleltetése korlátként jelenik meg, ezáltal alkalmasak arra,
+hogy rajtuk keresztül vizsgáljam meg, hogy a különböző módokon végzett párhuzamos végrehajtásuk hogyan hat ezekre a korlátaikra.
+
+A méréseim során arra kerestem a választ, hogy az általam tervezett szerverarchiktektúra szabad paraméterei hogyan hangolhatóak
+annak érdekében, hogy ezek a feladatok a lehető legjobban kihasználhassák a tesztrendszerem erőforrásait, illetve hogy ennek
+a vizsgálata során milyen eltérések mutatkoznak a különböző szűk keresztmetszettel rendelkező algoritmusok között.
+
+A feladataimhoz hozzálátva azt tapasztaltam, hogy sok lehetőség állt rendelkezésemre, mivel mind a tesztfeladatok, a szerverarchitektúra és
+a mérési környezet kialakításában szabadságom volt.
+Annak érdekében, hogy a munkám jól definiált struktúrát kapjon, öt részre bontottam:
+Először magát a szerverprogramot implementáltam, majd a korábbi ismereteimre hagyatkozva négy hipotézist állítottam fel
+ennek a működéséről. A későbbiekben ezeknek a hipotéziseknek az igazságtartalmát vizsgáltam mérésekkel és azok értelmezésével.
 \newpage
 
 % =============================================================
