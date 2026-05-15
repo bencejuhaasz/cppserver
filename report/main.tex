@@ -570,6 +570,18 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
 
 \subsection{Továbbfejlesztési lehetőségek}
 \label{ssec:tovabbfejlesztes}
+A munkám során nem jutott időm arra, hogy megvizsgáljam, hogy milyen hatással van az IO-bound algoritmusokra az, hogy
+a processzor és feltételezéseim szerint a lemezmeghajtó is képes gyorsítótárazni, ún. "cache"-elni a feldolgozott adatokat.
+Ennek a hatása a kérések kiszolgálásának idejére jelentős lehet.
+
+Találkoztam továbbá egy meglepő jelenséggel, amikor a worker pool méretének optimumát kerestem korlátozott mennyiségben rendelkezésre álló processzormag mellett.
+A htop rendszererőfforrás-figyelő eszközzel meggyőződtem róla, hogy valóban kihasználják a CPU bound workerek a rendelkezésre álló processzoridőt minden magon.
+Ennek tudatában arra számítottam, hogy több worker létrehozásával, mint ahány processzormagot a szerver rendelkezésére bocsátok, csökkenni fog az egységnyi idő alatt
+kiszolgálható kérések száma, mert azonos erőforráson fognak kénytelenné válni osztozni ezek a komponensek, és amíg az egyik példányuk processzoridőt kap egy adott magon,
+addig a többinek várakoznia kell, ezáltal meg fog nőni az idő, ami alatt ki tudja szolgálni a hozzá tartozó klienst.
+Ezzel szemben azt tapasztaltam, hogy a worker pool méretének optimuma négy processzormag mellett nyolc, ami ellent mond ennek a megközelítésnek.
+Ezt a jelenséget érdemes lenne még tovább vizsgálni, a pontos okának felderítése céljából.
+
 
 % \begin{itemize}
 %     \item Cache-stratégiák bevezetése (LRU, LFU, ARC)
