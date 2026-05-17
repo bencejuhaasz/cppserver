@@ -127,7 +127,12 @@ a mérési környezet kialakításában szabadságom volt.
 Annak érdekében, hogy a munkám jól definiált struktúrát kapjon, öt részre bontottam:
 Először magát a szerverprogramot implementáltam, majd a korábbi ismereteimre hagyatkozva négy hipotézist állítottam fel
 ennek a működéséről. A későbbiekben ezeknek a hipotéziseknek az igazságtartalmát vizsgáltam mérésekkel és azok értelmezésével.
-=======
+
+
+A dolgozatban a párhuzamos feldolgozási műveleteket végző szálakat reprezentáló objektumokra workerként, összességükre worker poolként,
+a kérések kiszolgálásának idejére késleltetésként, latencyként, ennek adott legkedvezőtlenebb százalékára pN\% tail latencyként,
+a beérkező kéréseket a feldolgozás megkezdése előtt tároló, FIFO sor jellegű adatszerkezetkre queue-ként vagy task queue-ként, az egységnyi idő alatt
+kiszolgált kérésekre throughputként, a terhelést modellező implementációkra taskként hivatkozok.
 %\newpage
 
 % =============================================================
@@ -168,6 +173,38 @@ pélául egy ipari környezetben.
 %     L = \lambda \cdot W
 %     \label{eq:littles-law}
 % \end{equation}
+
+
+A sorbanállás-elmélet (queueing theory) olyan matematikai eszközrendszert nyújt, amellyel
+várakozási sorok viselkedése modellezhető. Egy ilyen modell alapvető összefüggése Little's törvénye~\cite{little1961},
+amely kimondja, hogy egy stabil rendszerben az egyidejűleg jelen lévő kérések átlagos száma ($L$)
+egyenlő az érkezési rátának ($\lambda$) és az átlagos rendszerben töltött időnek ($W$) a szorzatával:
+
+\begin{equation}
+    L = \lambda \cdot W
+    \label{eq:littles-law}
+\end{equation}
+
+Ez az összefüggés független az időbeli eloszlástól, amennyiben a rendszer stabil állapotban van.
+A méréseim során CPU- és IO-bound taskokat, valamint egy külső, hálózaton keresztül
+elérhető erőforrásra tmáaszkodó taskot vizsgáltam, amelyek kiszolgálási idő eloszlása egymástól jelentősen eltér.
+Viszont az időbeli eloszlástól való függetlenség miatt mindhármat érdemes a Little's Law szemszögéből vizsgálni.
+
+
+A vizsgált szerver felépítése megfeleltethető az M/M/$c$ modellnek~\cite{kleinrock1975}, amelyben
+a kérések Poisson-folyamat szerint érkeznek ($\lambda$ rátával), a kiszolgálási idők exponenciálisan
+oszlanak el, és $c$ párhuzamos kiszolgáló (worker) áll rendelkezésre. Ha $\rho = \lambda / (c \mu)$
+a kihasználtsági tényező (ahol $\mu$ az egy worker kiszolgálási rátája), akkor $\rho < 1$ esetén
+a rendszer stabil, és a várakozási sor véges marad. Ha $\rho \geq 1$, a sor korlátlanul növekszik,
+a válaszidő divergál: ez megfelel a mérésekben megfigyelt telítési jelenségnek.
+
+A valós rendszer több ponton eltér az ideális M/M/$c$ modelltől. A kiszolgálási idők nem
+exponenciálisak: a CPU-bound task determinisztikusan fut, az IO-bound task eloszlását a
+fájlrendszer viselkedése, a network task eloszlását pedig az upstream szerver válaszideje
+befolyásolja. Emellett a worker pool mérete véges, és a task queue kapacitása korlátozott,
+ami kérések elutasításához vezet. Ezek az eltérések magyarázhatják, ha a mérési eredmények
+nem pontosan a modell előrejelzései szerint alakulnak, és a hipotézisek értelmezésénél
+egyaránt figyelembe kell venni őket.
 
 \subsection{A vizsgált hipotézisek}
 \label{ssec:hipotezisek}
@@ -336,10 +373,47 @@ jelenik meg CPU-bound task esetén.
     \label{fig:h1-linear}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{h1_latency_loglog.png}
+    \caption{H1: TODO szöveg}
+    \label{fig:h1-loglog}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{h1_diagnostic.png}
+    \caption{H1: TODO szöveg}
+    \label{fig:h1-diagnostic}
+\end{figure}
+
 \subsubsection{Diszkusszió}
 \label{sssec:h1-diszkusszio}
 
-% A megfigyelt jelenség értelmezése, a hipotézis igazolása vagy cáfolata.
+A mérési eredmények a hipotézist egyértelműen igazolják. A throughput $c=4$ párhuzamos
+kliensnél eléri a ~203 req/s telítettségi szintet, és ezt követően egészen $c=256$-ig
+stabilan tartja ezt az értéket (\ref{fig:h1-combined}. ábra). A telítési pont pontosan
+a worker pool méreténél jelenik meg, ami összhangban van az M/M/$c$ modell előrejelzésével:
+amikor a párhuzamos kliensek száma eléri a workerek számát, a kihasználtsági tényező
+$\rho \approx 1$-re növekszik, és a rendszer telítődik.
+
+A latency ezzel párhuzamosan $c=4$-ig közel konstans (~20 ms), majd ezt követően
+folyamatosan és meredeken növekszik (\ref{fig:h1-loglog}. ábra). Figyelemre
+méltó, hogy a p50, p90 és p99 percentilis görbék $c=4$ felett szinte teljesen egybeesnek,
+ami azt jelzi, hogy a telítés után nem csupán a legrosszabb esetű válaszidők romlanak,
+hanem a válaszidők teljes eloszlása eltolódik. Ez arra utal, hogy a várakozási sor
+dominál a válaszidőben, nem pedig az egyedi kérések feldolgozási idejének szórása.
+
+
+A \ref{fig:h1-linear}. ábra a latency lineáris karakterisztikáját mutatja be. A mért
+p50 és átlag latency értékekre illesztett lineáris függvény $W = 4{,}88 \cdot c + 0{,}7$
+ms alakú, és az illeszkedés szinte tökéletes. Ez Little's törvényének közvetlen
+igazolása: mivel a throughput telítés után konstans ($\lambda$ fix), $W$ lineárisan
+arányos a rendszerben lévő kérések számával ($L = c$).
+
+A diagnosztikai ábra ( \ref{fig:h1-diagnostic}. ábra) tanúsága szerint az öt
+ismétlés szórása minden kliensszámnál elhanyagolható, ami a mérések jó
+reprodukálhatóságát igazolja.
 
 % =============================================================
 \subsection{H2: Worker pool méretének optimuma}
