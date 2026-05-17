@@ -479,6 +479,13 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
     \label{fig:h2-panels}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{h2_tail_ratio.png}
+    \caption{H2: TODO szöveg}
+    \label{fig:h2-tail-ratio}
+\end{figure}
+
 \subsubsection{Kontrollmérés 2 magos pinninggel}
 \label{sssec:h2-kontroll}
 
@@ -491,6 +498,43 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 % A részleges hipotézis-cáfolat bemutatása.
 % A "rejtett overhead" magyarázat.
 % A worker pool implementáció szerepe (round-robin pinning).
+
+A mérési eredmények a hipotézist részlegesen cáfolják. A hipotézis szerint azt vártam, hogy
+CPU-bound taskok esetén az optimális worker pool mérete a fizikai processzormagok
+számának közelében ($\approx 4$) lesz, az IO-bound taskok esetén pedig ennek legalább
+kétszerese. Ezzel szemben mindkét task típusnál az optimum 8 workernél jelent meg
+$c=8$ kliensszám mellett, és 12 workernél $c=64$ esetén: mindkettő meghaladja
+a fizikai magok számát (\ref{fig:h2-throughput}. és \ref{fig:h2-panels}. ábra).
+
+
+CPU-bound esetben a throughput 8 workernél éri el a maximumot (~207 req/s), és
+efölött monoton csökken: 32 workernél már csak ~165 req/s mérhető. A p99/p50
+arány ugyanebben a tartományban meredeken nő (\ref{fig:h2-tail-ratio}. ábra),
+ami arra utal, hogy a worker pool túlméretezésével megjelenő kontextusváltási
+overhead elsősorban a legrosszabb esetű válaszidőket rontja. 
+Az, hogy az optimum a magok számánál ($c=4$) nagyobb, több
+tényezővel magyarázható. Egyrészt a szerver kéréseket elfogadó szála maga is CPU-időt vesz
+el a kiosztott magokon, másrészt a task queue-ból való kivétel mutex-szel védett,
+ami rövid blokkolódási időket okoz a workerekben. Ezeket a pillanatokat egy
+többlet worker hasznosítani tudja. Továbbá még CPU-bound taskok esetén is
+előfordulnak rövid várakozások memória késleltetés vagy rendszerhívások miatt,
+amelyek alatt a processzormag egyébként kihasználatlan maradna, és olyankor
+egy további worker képes dolgozni ezidő alatt.
+
+
+IO-bound esetén a throughput görbe laposabb és zajosabb (\ref{fig:h2-throughput}.
+ábra), ami a lemez változó elérési idejéből adódik. Az optimum szintén
+8-12 worker körül van, és a throughput csökkenése az optimum felett lényegesen lassabb,
+mint CPU-bound esetén. A tail ratio IO-bound esetén végig magasabb értéken
+stabilizálódik, ami azt tükrözi, hogy a fájlrendszer válaszidejének szórása
+önmagában is szélesíti a késleltetés eloszlását, függetlenül a worker pool méretétől.
+
+
+Összességében a két task típus optimuma közelebb esett egymáshoz, mint ahogyan a hipotézisben
+vártam. A különbség a két task típus között nem az optimum helyében, hanem az
+optimum felett mutatott viselkedésben jelentkezik: CPU-bound esetén a degradáció
+meredek és a p99/p50 arány gyorsan nő, míg IO-bound esetén a rendszer toleránsabb
+a worker pool túlméretezésével szemben.
 
 % =============================================================
 \subsection{H3: Task queue méretének hatása}
