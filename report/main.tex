@@ -92,7 +92,7 @@
 
 % ToC
 \tableofcontents
-\newpage
+%\newpage
 
 % =============================================================
 \section{Feladat ismertetése}
@@ -127,7 +127,8 @@ a mérési környezet kialakításában szabadságom volt.
 Annak érdekében, hogy a munkám jól definiált struktúrát kapjon, öt részre bontottam:
 Először magát a szerverprogramot implementáltam, majd a korábbi ismereteimre hagyatkozva négy hipotézist állítottam fel
 ennek a működéséről. A későbbiekben ezeknek a hipotéziseknek az igazságtartalmát vizsgáltam mérésekkel és azok értelmezésével.
-\newpage
+=======
+%\newpage
 
 % =============================================================
 \section{Bevezetés}
@@ -179,7 +180,7 @@ pélául egy ipari környezetben.
      \item \textbf{H4:} Skálázódási profil task típusonként
  \end{itemize}
 
-\newpage
+%\newpage
 
 % =============================================================
 \section{A konkrét munka ismertetése}
@@ -293,7 +294,12 @@ ahol telítődési jelenség jelentkezik.
 A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
 Egy beállítás 60 másodpercig tartott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez, különösen a tail latency tekintetében.
 Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
-Előttük két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+
+Előttük egy tíz másodperces "bemelegítési" futtatást csináltam, hogy még a mérés előtt hasonló állapotba kerülhessen a rendszer,
+mint futás közben. Ez alatt nem rögzítettem adatokat.
+Ezt követően két másodperc várakozási időt állítottam be, hogy a "bemelegítési" szakaszban futtatott terhelés közvetlenül ne befolyásolja
+az utána kezdődő tényleges mérést.
+
 A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
 pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem.
 
@@ -365,9 +371,12 @@ A két válaszott kliensszámom 8 és 64 lett, ezeknél már mindkét esetben me
 H1 eredményei szerint. A queue méretét ismét nagyra, 2048-ra választottam, hogy ez ne legyen szűk keresztmetszet a mérés során.
 A worker pool méretét rendre 1, 2, 4, 6, 8, 12, 16, 24, 32 értékeken iteráltam a mérés során.
 A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
-Egy beállítás 60 másodpercig tartott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez, különösen a tail latency tekintetében.
+Egy beállítás 60 másodpercig futott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez, különösen a tail latency tekintetében.
 Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
-Előttük két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+Előttük egy tíz másodperces "bemelegítési" futtatást csináltam, hogy még a mérés előtt hasonló állapotba kerülhessen a rendszer,
+mint futás közben. Ez alatt nem rögzítettem adatokat.
+Ezt követően két másodperc várakozási időt állítottam be, hogy a "bemelegítési" szakaszban futtatott terhelés közvetlenül ne befolyásolja
+az utána kezdődő tényleges mérést.
 A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
 pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem.
 
@@ -441,7 +450,11 @@ Vizsgáltam CPU és IO-bound taskokat is, hogy lássam, hogy a különböző jel
 A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
 Egy beállítás 60 másodpercig futott, hogy elegendő időt biztosítson a stabil méréshez.
 Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre.
-A mérés elején két másodperc várakozási időt állítottam be, hogy legyen ideje elindulnia a szervernek biztosan.
+Előttük egy tíz másodperces "bemelegítési" futtatást csináltam, hogy még a mérés előtt hasonló állapotba kerülhessen a rendszer,
+mint futás közben. Ez alatt nem rögzítettem adatokat.
+Ezt követően két másodperc várakozási időt állítottam be, hogy a "bemelegítési" szakaszban futtatott terhelés közvetlenül ne befolyásolja
+az utána kezdődő tényleges mérést.
+
 A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
 pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem, hogy ha az operációs rendszer
 valamilyen általam nem kontrollelt háttérfolyamatot futtatna, akkor az ne zavarja a mérésemet.
@@ -449,7 +462,7 @@ Eközben mértem, hogy hány sikeres kérés valósul meg másodpercenként, és
 
 
 A hipotézis igazolt, ha létezik olyan queue méret, ahol a p99 latency mérhetően alacsonyabb (>20\%), mint a legnagyobb tesztelt méretnél, valamint
-ha a legkisebb tesztelt méreteknél (≤4) a reject ráta szignifikánsan (>5\%) nagyobb, mint az optimumnál, és
+ha a legkisebb tesztelt méreteknél (<=4) a reject ráta szignifikánsan (>5\%) nagyobb, mint az optimumnál, és
 a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos méret fölött, miközben a reject ráta közel nulla, ez igazolja az ún. bufferbloat-szerű viselkedést.
 
 
@@ -496,6 +509,45 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
 % - Mérési elrendezés: egységes paraméterezés, valós upstream
 % - A "valós internet mint kontrollálatlan változó" tudatos választása
 
+A CPU-bound, IO-bound és network proxy taskok latency-throughput görbéi kvalitatívan különböznek a 
+kliensszám függvényében: a knee point helye, a knee utáni meredekség, és a maximálisan elérhető throughput 
+is task-típus-függő, és ezek a különbségek a feldolgozás CPU- és IO-időarányából magyarázhatók.
+
+
+CPU-bound esetben a szűk keresztmetszet a magok száma.
+IO-bound esetben a workerek nagy része várakozik, így a CPU nem szűk keresztmetszet; a knee point később jelenik meg, 
+és a throughput plafonját más limitálja (pl. fájlrendszer áteresztőképesség, vagy egy konstans feldolgozási overhead per request). 
+A network proxy a függő rendszer (upstream) latencyjétől és kapacitásától függ, így viselkedése részben a saját szerverem paraméterein, 
+részben az upstream szerveren múlik — ami egy harmadik, kvalitatívan eltérő profilt ad.
+
+
+A mérési elrendezést úgy alakítottam ki, hogy a worker pool méretét a H2 hipotézis vizsgálata során meghatározott optimális értékére, 
+8 workerre állítottam be, hogy ez ne legyen szűk keresztmetszet a mérés során.
+A kliensszámot rendre a 1, 2, 4, 8, 16, 32, 64 tartományon iteráltam. Ez egy csökkentett tartomány, mert 
+itt külső szervert elérő worker is futott, ami felé nagyobb a késleltetés, és feltételeztem, hogy az egy címről történő elérések
+számát korlátozhatják a külső szerverek, ezért nem mentem el 128-ig vagy tovább.
+A task queue méretét nagyra, 2048-ra választottam, hogy ez ne legyen szűk keresztmetszet a mérés során.
+A teljes mérést ötször futtattam, hogy átlagolni tudjam a kapott eredményeket minden beállítás mellett.
+Egy beállítás 60 másodpercig futott, hogy elegendő időt biztosítson a stabil mérési eredmények eléréséhez.
+Köztük öt másodperc szünetet hagytam, hogy a rendszer vissza tudjon állni a kiindulási állapotba, és ne legyen hatással a következő mérésre
+az előző.
+
+Előttük egy tíz másodperces "bemelegítési" futtatást csináltam, hogy még a mérés előtt hasonló állapotba kerülhessen a rendszer,
+mint futás közben. Ez alatt nem rögzítettem adatokat.
+Ezt követően két másodperc várakozási időt állítottam be, hogy a "bemelegítési" szakaszban futtatott terhelés közvetlenül ne befolyásolja
+az utána kezdődő tényleges mérést.
+
+
+A nyolc logikai processzormag közül az első négyet, 0-3-ig a szerver számára osztottam ki, az utolsó kettőt, 6-7 azonosítóval 
+pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval nem érintett a mérésem, hogy ha az operációs rendszer
+valamilyen általam nem kontrollelt háttérfolyamatot futtatna, akkor az ne zavarja a mérésemet.
+
+A network proxy taskok esetén a szerver egy valós, külső HTTP szerverhez kapcsolódott, a következő címen:  "https://time.now/developer/api/timezone/Europe/London"
+
+A hipotézis igazolt, ha a három task típus knee pointja között legalább 2×-es eltérés mérhető,
+a maximális stabil throughput a három task típusra különböző nagyságrendű vagy legalább 50\%-ban eltérő, és
+a knee utáni latency-meredekség (pl. p95 növekedése egy logaritmikus klienslépésre vetítve) kvalitatívan különbözik — pl. a CPU-bound meredekebb, mert ott a context switch overhead is bekapcsol, míg az IO-bound laposabban romlik.
+
 \subsubsection{Eredmények}
 \label{sssec:h4-eredmenyek}
 
@@ -534,7 +586,7 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
 % - A task típusa a maximális throughputot és a tail viselkedést befolyásolja
 % - A "rejtett overhead" mint visszatérő tényező mind a négy hipotézisnél
 
-\newpage
+%\newpage
 
 % =============================================================
 \section{Összefoglalás}
@@ -552,21 +604,21 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
 % Lehet táblázat vagy bekezdéses összefoglaló.
 % Pl.:
 %
-% \begin{table}[H]
-%     \centering
-%     \begin{tabular}{@{}lll@{}}
-%         \toprule
-%         \textbf{Hipotézis} & \textbf{Státusz} & \textbf{Fő eredmény}\\
-%         \midrule
-%         H1 & Igazolt & Little's Law ...\\
-%         H2 & Részlegesen igazolt & ... \\
-%         H3 & Igazolt & ... \\
-%         H4 & Részlegesen igazolt & ... \\
-%         \bottomrule
-%     \end{tabular}
-%     \caption{A négy hipotézis eredményeinek áttekintése.}
-%     \label{tab:hipotezisek}
-% \end{table}
+ \begin{table}[H]
+     \centering
+     \begin{tabular}{@{}lll@{}}
+         \toprule
+         \textbf{Hipotézis} & \textbf{Státusz} & \textbf{Fő eredmény}\\
+         \midrule
+         H1 & Igazolt & A knee point a worker pool méreténél van; A Little's Law teljesül\\
+         H2 & Részlegesen igazolt & Az optimum nagyobb, CPU esetben nem magszámnál van \\
+         H3 & Igazolt & Új megfigyelés: a tömeges klienselutasítás csökkenti a hasznos throughputot \\
+         H4 & Részlegesen igazolt & Új megfigyelés:a knee point közös (=worker pool mérete) \\
+         \bottomrule
+     \end{tabular}
+     \caption{A négy hipotézis eredményeinek áttekintése.}
+     \label{tab:hipotezisek}
+ \end{table}
 
 \subsection{Továbbfejlesztési lehetőségek}
 \label{ssec:tovabbfejlesztes}
@@ -591,7 +643,7 @@ Ezt a jelenséget érdemes lenne még tovább vizsgálni, a pontos okának felde
 %     \item Realisztikus workload generátor (Zipf-eloszlás, YCSB)
 % \end{itemize}
 
-\newpage
+%\newpage
 
 % =============================================================
 \section*{Irodalomjegyzék}
