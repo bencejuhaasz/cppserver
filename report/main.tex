@@ -52,11 +52,8 @@
 \newcommand{\felev}{2025/2026/2}
 \newcommand{\targynev}{Önálló laboratórium}
 
-% =============================================================
 \begin{document}
-% =============================================================
 
-% Cím oldala
 \begin{titlepage}
     \centering
     \vspace*{1cm}
@@ -90,14 +87,10 @@
     {\large Budapest, 2026}
 \end{titlepage}
 
-% ToC
 \tableofcontents
-%\newpage
 
-% =============================================================
 \section{Feladat ismertetése}
 \label{sec:feladat}
-% =============================================================
 
 A dolgozat célja egy C++ nyelven implementált, több szálon működő lokális 
 cache szerver tervezése és vizsgálata, különös tekintettel a teljesítményoptimalizálási 
@@ -133,19 +126,13 @@ A dolgozatban a párhuzamos feldolgozási műveleteket végző szálakat repreze
 a kérések kiszolgálásának idejére késleltetésként, latencyként, ennek adott legkedvezőtlenebb százalékára pN\% tail latencyként,
 a beérkező kéréseket a feldolgozás megkezdése előtt tároló, FIFO sor jellegű adatszerkezetkre queue-ként vagy task queue-ként, az egységnyi idő alatt
 kiszolgált kérésekre throughputként, a terhelést modellező implementációkra taskként hivatkozok.
-%\newpage
 
-% =============================================================
+
 \section{Bevezetés}
 \label{sec:bevezetes}
-% =============================================================
+ 
 
-% TODO: ~1 oldal, kontextus felállítása. Tartalom javaslat:
-% - A teljesítménymérés és párhuzamosság fontossága szervereknél
-% - A queueing theory alapfogalmai (Little's Law, M/M/c modell)
-% - A vizsgált cppserver rendszer rövid ismertetése
-% - A négy hipotézis (H1-H4) tömör megfogalmazása
-% - A dolgozat felépítésének rövid bemutatása
+
 
 \subsection{A téma motivációja}
 \label{ssec:motivacio}
@@ -164,15 +151,6 @@ pélául egy ipari környezetben.
 \subsection{Elméleti háttér}
 \label{ssec:elmeleti-hatter}
 
-% a queueing theory rövid ismertetése.
-% Little's Law: $L = \lambda \cdot W$
-% M/M/c modell: szerver véges worker pool-lal
-% Példa egyenlet:
-%
-% \begin{equation}
-%     L = \lambda \cdot W
-%     \label{eq:littles-law}
-% \end{equation}
 
 
 A sorbanállás-elmélet (queueing theory) olyan matematikai eszközrendszert nyújt, amellyel
@@ -217,12 +195,10 @@ egyaránt figyelembe kell venni őket.
      \item \textbf{H4:} Skálázódási profil task típusonként
  \end{itemize}
 
-%\newpage
 
-% =============================================================
 \section{A konkrét munka ismertetése}
 \label{sec:munka}
-% =============================================================
+% 
 Az Önálló laboratóriumi munkám során először elkészítettem a C++ szerver program implementációját.
 Ennek kezdetben az Internetről lehető legtöbb forrást felhasználva álltam neki, beleértve
 google keresési találatokat a stackexchange.com fórumról és a generatív nagy nyelvi modellek kimeneteit is.
@@ -245,10 +221,10 @@ Egy ilyen érték például azt mutatja meg, hogy a kérések adott százaléka 
 ugyanis ezzel kifejezhető, hogy a kevésbé ideális esetekben hogyan viselkedik a program.
 A mérési eredmények feldolgozásához Python programokat írtam, 
 amelyek segítségével rendszereztem és elemeztem az adatokat, valamint előállítottam a dolgozatban szereplő ábrákat.
-% =============================================================
+
 \subsection{Mérési környezet és módszertan}
 \label{ssec:kornyezet}
-% =============================================================
+
 A méréseim során egy HP ZBook 17 G4 típusú laptopot használtam
 Intel Core i7-7820HQ processzorral, ami négy fizikai processzormaggal rendelkezik,
 valamint az Intel ún. Simultaneous Multi-Threading (SMT) technológiájával nyolc szálon
@@ -279,43 +255,25 @@ A szervert a GNU Compiler Collection (GCC) segítségével fordítottam, a 16.1.
 A mérési adatokat Python programok segítségével állítottam elő és rendszereztem, valamint dolgoztam fel.
 
 
-% TODO: ~0.5 oldal
-% - Warmup, mérési idő, ismétlések
-% - Adatfeldolgozás: Python szkriptek, statisztika
 
-% =============================================================
 \subsection{A szerver implementációja}
 \label{ssec:implementacio}
-% =============================================================
 
-% TODO: ~0.5 oldal. Tartalom:
-% - Architektúra: accept szál + worker pool
-% - Worker típusok: CpuWorker, IoWorker, default Worker (network proxy)
-% - Konfigurációs paraméterek: --max-threads, --max-queue, --upstream
-% - A munkavégzés bemutatása task típusonként röviden
 
-% Itt jön az implementáció rövid ismertetése.
+
 A szerverprogram a következő fő komponensekből áll:
 \begin{itemize}
     \item \textbf{Main szál:} Ez a komponens felelős a konfigurációs paraméterek feldolgozásáért, a TCP socket létrehozásáért és a bejövő kapcsolatok fogadásáért. Amikor egy új kliens csatlakozik, a main szál egy új taskot hoz létre, amely tartalmazza a kliens kérését, és ezt a taskot elhelyezi a worker pool által használt task queue-ba.
     \item \textbf{Worker pool:} Ez egy fix méretű szálcsoport, amely a main szál által létrehozott taskokat dolgozza fel. A worker szálak egy közös task queue-t használnak, ahonnan felveszik a feldolgozásra váró taskokat. A worker pool mérete konfigurálható, és ez az egyik vizsgált paraméter a dolgozatban.
     \item \textbf{Task típusok:} A szerver három különböző típusú taskot képes feldolgozni: CpuWorker, IoWorker és egy default Worker, amely egy egyszerű network proxyként működik. A CpuWorker típusú taskok számításigényes műveleteket hajtanak végre, míg az IoWorker típusú taskok a lemezhez kapcsolódó műveleteket végeznek. A default Worker egyszerűen továbbítja a kéréseket egy upstream szerver felé, és visszaküldi a válaszokat a kliensnek.
 \end{itemize}
-% =============================================================
+
 \subsection{H1: Telítési pont a kliensszám függvényében}
 \label{ssec:h1}
-% =============================================================
-
-% TODO: ~1 oldal
 
 \subsubsection{Hipotézis és felállítása}
 \label{sssec:h1-hipotezis}
 
-% Tartalom:
-% - A hipotézis pontos megfogalmazása
-% - Elméleti háttér (Little's Law alapú predikció)
-% - Mérési elrendezés (paraméterek táblázata vagy felsorolása)
-% - Sikerkritérium
 
 A szerver válaszideje a párhuzamos kliensek számának függvényében nem-lineáris 
 karakterisztikát mutat: létezik egy kliensszám-küszöb (knee point), amelyen túl a 
@@ -352,12 +310,7 @@ jelenik meg CPU-bound task esetén.
 \subsubsection{Eredmények}
 \label{sssec:h1-eredmenyek}
 
-% Tartalom:
-% - A throughput plató és a knee point bemutatása
-% - Latency lineáris karakterisztika
-% - Little's Law numerikus egyezés
 
-% Throughput és p99 latency együttes ábra:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h1_combined.png}
@@ -365,7 +318,6 @@ jelenik meg CPU-bound task esetén.
     \label{fig:h1-combined}
 \end{figure}
 
-% Lineáris fit (Little's Law):
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h1_latency_linear.png}
@@ -415,20 +367,14 @@ A diagnosztikai ábra ( \ref{fig:h1-diagnostic}. ábra) tanúsága szerint az ö
 ismétlés szórása minden kliensszámnál elhanyagolható, ami a mérések jó
 reprodukálhatóságát igazolja.
 
-% =============================================================
+
 \subsection{H2: Worker pool méretének optimuma}
 \label{ssec:h2}
-% =============================================================
 
-% TODO: ~1.5 oldal
 
 \subsubsection{Hipotézis és felállítása}
 \label{sssec:h2-hipotezis}
 
-% Tartalom:
-% - Hipotézis: CPU-bound optimum a magszámnál, IO-bound jelentősen több
-% - Mérési elrendezés: 9 worker érték, 2 task, 2 kliensszám
-% - Validációs mérés a 32 workeres maximumon
 
 Minden feladattípushoz, amit a worker pool végrehajt, létezik egy hozzá tartozó optimális worker pool méret. 
 Amikor a processzor a szűk keresztmetszet, akkor ez a méret körülbelül egyenlő a rendelkezésre álló processzormagok számával, +/- 10%, 
@@ -463,7 +409,6 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 \subsubsection{Eredmények}
 \label{sssec:h2-eredmenyek}
 
-% Throughput vs worker szám:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h2_throughput.png}
@@ -471,7 +416,6 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
     \label{fig:h2-throughput}
 \end{figure}
 
-% Optimum panelek:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{h2_optimum_panels.png}
@@ -489,15 +433,11 @@ pedig a wrk mérőeszköz számára. Két processzormagot, 4-5 azonosítóval ne
 \subsubsection{Kontrollmérés 2 magos pinninggel}
 \label{sssec:h2-kontroll}
 
-% Tartalom: a 2 magos kontrollmérés indoklása és eredménye.
-% Az "optimum 8 worker, magszám-független" eredmény bemutatása.
+.
 
 \subsubsection{Diszkusszió}
 \label{sssec:h2-diszkusszio}
 
-% A részleges hipotézis-cáfolat bemutatása.
-% A "rejtett overhead" magyarázat.
-% A worker pool implementáció szerepe (round-robin pinning).
 
 A mérési eredmények a hipotézist részlegesen cáfolják. A hipotézis szerint azt vártam, hogy
 CPU-bound taskok esetén az optimális worker pool mérete a fizikai processzormagok
@@ -536,20 +476,15 @@ optimum felett mutatott viselkedésben jelentkezik: CPU-bound esetén a degradá
 meredek és a p99/p50 arány gyorsan nő, míg IO-bound esetén a rendszer toleránsabb
 a worker pool túlméretezésével szemben.
 
-% =============================================================
 \subsection{H3: Task queue méretének hatása}
 \label{ssec:h3}
-% =============================================================
 
-% TODO: ~1 oldal
+
 
 \subsubsection{Hipotézis és felállítása}
 \label{sssec:h3-hipotezis}
 
-% Tartalom:
-% - Hipotézis: kis queue → reject, nagy queue → bufferbloat
-% - Mérési elrendezés: 7 queue méret, 2 task, 2 kliensszám
-% - A reject ráta mérési módja (TCP close → wrk read error)
+
 A worker pool előtti task queue-nak van egy optimális mérete, adott kliensszám és worker pool méret mellett. 
 A túl nagy queue méret ún. "bufferbloat" jelenséget idéz elő, a túl kicsi hamar megtelik, és emiatt a szerver elutasítja a bejövő kéréseket.
 A worker pool előtti task queue-t, ami egy FIFO sor, tehát olyan sorrendben lépnek ki belőle az elemek, ahogyan bekerültek,
@@ -589,7 +524,6 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
 \subsubsection{Eredmények}
 \label{sssec:h3-eredmenyek}
 
-% Tradeoff (4 panel):
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{h3_tradeoff.png}
@@ -597,7 +531,7 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
     \label{fig:h3-tradeoff}
 \end{figure}
 
-% Reject ráta lépcsőfüggvény:
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h3_reject_rate.png}
@@ -605,27 +539,79 @@ a latency vs. queue méret görbe felismerhetően monoton növekvő egy bizonyos
     \label{fig:h3-reject}
 \end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{h3_latency_p99.png}
+    \caption{H3: TODO cím}
+    \label{fig:h3-latency-p99}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{h3_latency_p50.png}
+    \caption{H3: TODO cím}
+    \label{fig:h3-latency-p50}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{h3_effective_throughput.png}
+    \caption{H3: TODO cím}
+    \label{fig:h3-effective-throughput}
+\end{figure}
+
 \subsubsection{Diszkusszió}
 \label{sssec:h3-diszkusszio}
 
-% A bufferbloat kimérése
-% A queue effektív kapacitása a kliensszámmal egyezik
-% Plusz felfedezés: a reject overhead csökkenti a hasznos throughputot
 
-% =============================================================
+A mérési eredmények a hipotézist igazolják, és egy további, a hipotézisben nem szereplő
+jelenségre is rámutatnak. A visszautasított kérések aránya és a latency a queue méret függvényében egymással
+ellentétes irányban változik, és ez a kompromisszum mindkét task típusnál és mindkét
+kliensszámnál megfigyelhető (\ref{fig:h3-tradeoff}. ábra).
+
+A A visszautasított kérések aránya lépcsőfüggvény jelleggel változik a queue méret függvényében
+(lásd \ref{fig:h3-reject}. ábra): $q \leq 64$-ig minden esetben közel 100\%-os,
+majd egy küszöbértéknél hirtelen 0\% közelébe esik. Ez a küszöb a kliensszámmal
+arányos: CPU-bound esetén $c=128$ kliensnél $q=256$-nál, $c=256$-nál szintén
+$q=256$-nál tűnik el a reject, míg IO-bound esetén valamivel nagyobb queue méret
+szükséges ugyanehhez. Ez azzal magyarázható, hogy a queue-nak legalább annyi
+helyet kell biztosítania, amennyi kérés egyidejűleg beérkezhet, mielőtt a workerek
+fel tudják dolgozni őket.
+
+A mért latency a queue méret növelésével eleinte monoton nő, majd egy küszöb felett
+stabilizálódik (\ref{fig:h3-latency-p99}. és \ref{fig:h3-latency-p50}. ábra).
+Ez a növekedés nem bufferbloat, hanem egy mérési sajátosság következménye: kis
+queue méreténél a kérések nagy része azonnal elutasításra kerül, és a wrk ezeket
+gyorsan visszakapja (TCP close), majd rögtön újat küld. A mért latency így csak
+azokra a kevés sikeres kérésre vonatkozik, amelyek épp belefértek a queue-ba,
+ezeknek viszonylag rövid volt a várakozási idejük, mert a queue sosem töltődött
+fel teljesen. Ahogy a queue mérete nő, egyre több kérés fér be, köztük olyanok is,
+amelyeknek tovább kell várniuk, hogy sorra kerülhessenek, ezért a mért átlagos latency nő. 
+Amikor a queue elég nagy ahhoz, hogy ne keletkezzen reject, a sor hossza a rendszer terhelésétől
+függ, nem a queue korlátjától. Ettől a ponttól a queue mérete már nem befolyásolja
+érdemben a latencyt.
+
+
+A nem várt megfigyelés az effektív throughput viselkedésében mutatkozik
+(lásd \ref{fig:h3-effective-throughput}. ábra): CPU-bound esetben kis queue
+méreténél ($q \leq 64$) az effektív throughput ~175 req/s, míg nagy queue
+méreténél ~225 req/s. Ez azt jelzi, hogy a tömeges kérelmelutasítás maga is
+processzoridőt vesz el a szervertől. Minden elutasított kapcsolatot le kell zárni
+a TCP protokollnak megfelelően, ami csökkenti a hasznos feldolgozásra fordítható időt.
+
+A sweet spot az az $q$ érték, ahol a reject ráta már elhanyagolható, és a latency
+éppen stabilizálódott. Ez CPU-bound esetén $c=128$ kliensnél $q=1024$,
+$c=256$-nál $q=256$, IO-bound esetén $c=128$-nál $q=256$, $c=256$-nál $q=2048$
+körül azonosítható (\ref{fig:h3-tradeoff}. ábra).
+
+
 \subsection{H4: Task típusok skálázódási profiljának összehasonlítása}
 \label{ssec:h4}
-% =============================================================
 
-% TODO: ~1 oldal
 
 \subsubsection{Hipotézis és felállítása}
 \label{sssec:h4-hipotezis}
 
-% Tartalom:
-% - Hipotézis: 3 task kvalitatívan különbözik
-% - Mérési elrendezés: egységes paraméterezés, valós upstream
-% - A "valós internet mint kontrollálatlan változó" tudatos választása
 
 A CPU-bound, IO-bound és network proxy taskok latency-throughput görbéi kvalitatívan különböznek a 
 kliensszám függvényében: a knee point helye, a knee utáni meredekség, és a maximálisan elérhető throughput 
@@ -669,7 +655,6 @@ a knee utáni latency-meredekség (pl. p95 növekedése egy logaritmikus kliensl
 \subsubsection{Eredmények}
 \label{sssec:h4-eredmenyek}
 
-% Throughput skálázódás:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h4_throughput.png}
@@ -677,7 +662,6 @@ a knee utáni latency-meredekség (pl. p95 növekedése egy logaritmikus kliensl
     \label{fig:h4-throughput}
 \end{figure}
 
-% Normalizált latency:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{h4_normalized_latency.png}
@@ -688,40 +672,20 @@ a knee utáni latency-meredekség (pl. p95 növekedése egy logaritmikus kliensl
 \subsubsection{Diszkusszió}
 \label{sssec:h4-diszkusszio}
 
-% A részleges hipotézis-igazolás bemutatása:
-% - A throughput plafonok és meredekségek eltérnek (igazolt)
-% - A knee point közös, c=8 körül (cáfolt) → a worker pool dominál
-% - A network task tail latency érzékenysége (valós internet zaj)
 
-% =============================================================
 \subsection{Összegző megfigyelések}
 \label{ssec:osszegzo}
-% =============================================================
 
-% TODO: ~0.3 oldal. Tartalom javaslat:
-% - A 8 worker mint univerzális optimum a vizsgált rendszerben
-% - A worker pool a knee point determinisztikus tényezője
-% - A task típusa a maximális throughputot és a tail viselkedést befolyásolja
-% - A "rejtett overhead" mint visszatérő tényező mind a négy hipotézisnél
 
-%\newpage
-
-% =============================================================
 \section{Összefoglalás}
 \label{sec:osszefoglalas}
-% =============================================================
 
-% TODO: ~0.5 oldal. Tartalom:
-% - A négy hipotézis eredményeinek tömör áttekintése
-% - A főbb tanulságok mérnöki szempontból
-% - Továbbfejlesztési lehetőségek
+
 
 \subsection{A hipotézisek áttekintése}
 \label{ssec:hipotezisek-attekintes}
 
-% Lehet táblázat vagy bekezdéses összefoglaló.
-% Pl.:
-%
+
  \begin{table}[H]
      \centering
      \begin{tabular}{@{}lll@{}}
@@ -753,21 +717,10 @@ Ezzel szemben azt tapasztaltam, hogy a worker pool méretének optimuma négy pr
 Ezt a jelenséget érdemes lenne még tovább vizsgálni, a pontos okának felderítése céljából.
 
 
-% \begin{itemize}
-%     \item Cache-stratégiák bevezetése (LRU, LFU, ARC)
-%     \item Lock-free adatszerkezetek vizsgálata
-%     \item NUMA-awareness, perf-alapú profilozás
-%     \item A "8-worker konstans" pontos magyarázatának feltárása
-%     \item Realisztikus workload generátor (Zipf-eloszlás, YCSB)
-% \end{itemize}
 
-%\newpage
-
-% =============================================================
 \section*{Irodalomjegyzék}
 \label{sec:irodalom}
 \addcontentsline{toc}{section}{Irodalomjegyzék}
-% =============================================================
 
 \begin{thebibliography}{99}
 
@@ -802,7 +755,6 @@ B. Gregg.
 \newblock \emph{Systems Performance: Enterprise and the Cloud}.
 \newblock Pearson, 2.~kiadás, 2020.
 
-% TODO: további hivatkozások, ha szükséges
 
 \end{thebibliography}
 
